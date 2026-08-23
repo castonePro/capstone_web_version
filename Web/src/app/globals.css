@@ -1,0 +1,110 @@
+@import "tailwindcss";
+
+/*
+ * Flutter 앱의 config/sunset_theme.dart · config/palette.dart 토큰을 그대로 옮겼다.
+ * 필드 의미가 1:1 대응되므로 앱과 웹의 색이 어긋나지 않는다.
+ */
+@theme {
+  --color-accent: #ff4b26;
+  --color-accent-text: #c72200;
+  --color-accent-press: #f52a00;
+  --color-accent2: #0d5d62;
+  --color-on-accent: #ffffff;
+
+  --color-ink: #141210;
+  --color-ink2: #3d3833;
+  --color-muted: #8e8781;
+
+  --color-paper: #ffffff;
+  --color-card: #ffffff;
+  --color-line: #e6e0d8;
+  --color-sand: #f0e6d8;
+
+  --color-nav-bg: rgba(20, 18, 16, 0.93);
+  --color-nav-fg: #ffffff;
+  --color-nav-fg-off: rgba(255, 255, 255, 0.45);
+
+  --color-bg-glow1: #ffe3d9;
+  --color-bg-glow2: #dcefef;
+
+  --color-coral-50: #fff2f0;
+  --color-coral-100: #ffe1db;
+  --color-coral-200: #ffc4b8;
+  --color-coral-300: #ff9e8a;
+  --color-coral-400: #ff7357;
+  --color-coral-500: #ff4b26;
+  --color-coral-600: #f52a00;
+  --color-coral-700: #c72200;
+
+  --color-teal-50: #e8fbfc;
+  --color-teal-100: #c9f5f8;
+  --color-teal-300: #54e0e8;
+  --color-teal-500: #0d5d62;
+  --color-teal-700: #094044;
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  /* 앱 규칙: 라운드 20px을 넘지 않는다 */
+  --radius-2xl: 20px;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family:
+    "Pretendard",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Apple SD Gothic Neo",
+    "Malgun Gothic",
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 앱의 SunsetAmbientBackground(코랄·틸 글로우) 대응 */
+.ambient-bg {
+  position: relative;
+  isolation: isolate;
+}
+.ambient-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(60rem 30rem at 15% -10%, var(--color-bg-glow1), transparent 65%),
+    radial-gradient(50rem 28rem at 95% 5%, var(--color-bg-glow2), transparent 60%);
+}
+
+/* 가로 스크롤 영역(칩 줄, 타임라인 등) */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.fade-up {
+  animation: fadeUp 0.22s ease-out both;
+}

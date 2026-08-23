@@ -1,0 +1,31 @@
+{
+  "name": "travelbusan-web",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "i18n:check": "node scripts/i18n-check.mjs"
+  },
+  "dependencies": {
+    "@stomp/stompjs": "^7.0.0",
+    "next": "^15.5.23",
+    "next-intl": "^4.13.7",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "sockjs-client": "^1.6.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.13",
+    "@types/node": "^20.19.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@types/sockjs-client": "^1.5.4",
+    "playwright": "^1.62.1",
+    "tailwindcss": "^4.1.13",
+    "typescript": "^5.9.2"
+  }
+}
