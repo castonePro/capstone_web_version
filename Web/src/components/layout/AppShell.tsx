@@ -56,7 +56,12 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   // 로그인 안 된 상태면 로그인 화면으로 (앱의 SplashPage 분기와 동일)
   useEffect(() => {
-    if (ready && !isLoggedIn) router.replace("/login");
+    if (ready && !isLoggedIn) {
+      const isExpired =
+        typeof window !== "undefined" &&
+        window.sessionStorage.getItem("session_expired") === "1";
+      router.replace(isExpired ? "/login?expired=1" : "/login");
+    }
   }, [ready, isLoggedIn, router]);
 
   useEffect(() => {

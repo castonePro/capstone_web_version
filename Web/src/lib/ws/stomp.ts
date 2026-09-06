@@ -27,26 +27,57 @@ interface ConnectOptions<T> {
 
 export function connectStomp<T>({ topic, onMessage, onStatus }: ConnectOptions<T>): StompConnection {
   const token = AuthStorage.getToken();
+  const baseUrl = API_BASE_URL.replace(/\/$/, "");
+
+  // ws:// 또는 wss:// 로 시작하는 경우 순수 WebSocket 사용
+  const isPureWs = baseUrl.startsWith("ws://") || baseUrl.startsWith("wss://");
+  const wsUrl = isPureWs
+    ? `${baseUrl}/ws/chat`
+    : `${baseUrl.replace(/^http/, "ws")}/ws/chat`;
+
+  const sockJsUrl = `${baseUrl.replace(/^ws/, "http")}/ws/chat`;
 
   const client = new Client({
-    // SockJS는 http(s) URL을 쓴다 (ws:// 아님)
-    webSocketFactory: () => SockJS(`${API_BASE_URL}/ws/chat`) as unknown as WebSocket,
+    // 백엔드 명세: ws://<백엔드서버주소>:8080/ws/chat (또는 SockJS: http://.../ws/chat)
+    ...(isPureWs
+      ? { brokerURL: wsUrl }
+      : {
+          webSocketFactory: () => SockJS(sockJsUrl) as unknown as WebSocket,
+        }),
     connectHeaders: token ? { Authorization: `Bearer ${token}` } : {},
     reconnectDelay: 3000,
     heartbeatIncoming: 10000,
     heartbeatOutgoing: 10000,
+    debug: (str) => {
+      if (process.env.NODE_ENV === "development") {
+        console.log("[STOMP]", str);
+      }
+    },
     onConnect: () => {
       onStatus?.("connected");
       client.subscribe(topic, (message: IMessage) => {
         try {
           onMessage(JSON.parse(message.body) as T);
-        } catch {
-          /* 파싱 실패한 프레임은 무시 */
+        } catch (e) {
+          if (process.env.NODE_ENV === "development") {
+            console.error("[STOMP] JSON 파싱 실패:", e, message.body);
+          }
         }
       });
     },
     onWebSocketClose: () => onStatus?.("disconnected"),
-    onStompError: () => onStatus?.("error"),
+    onStompError: (frame) => {
+      if (process.env.NODE_ENV === "development") {
+        console.error("[STOMP ERROR]", frame.headers["message"], frame.body);
+      }
+      onStatus?.("error");
+    },
+    onWebSocketError: (event) => {
+      if (process.env.NODE_ENV === "development") {
+        console.error("[WS ERROR]", event);
+      }
+      onStatus?.("error");
+    },
   });
 
   onStatus?.("connecting");
@@ -54,7 +85,12 @@ export function connectStomp<T>({ topic, onMessage, onStatus }: ConnectOptions<T
 
   return {
     send: (destination, body) => {
-      if (!client.connected) return;
+      if (!client.connected) {
+        if (process.env.NODE_ENV === "development") {
+          console.warn("[STOMP] 연결되지 않은 상태에서 전송 시도됨:", destination, body);
+        }
+        return;
+      }
       client.publish({ destination, body: JSON.stringify(body) });
     },
     disconnect: () => {
