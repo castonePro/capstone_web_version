@@ -1,16 +1,18 @@
 "use client";
 
 /** Flutter features/auth/login_page.dart 대응 */
-import { useEffect, useState, type FormEvent } from "react";
+import { Suspense, useEffect, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { Button, Field, Input } from "@/components/ui";
 import { useFormat } from "@/lib/i18n/useFormat";
 import { LocaleSwitcher } from "@/components/layout/LocaleSwitcher";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const t = useTranslations("auth");
   const f = useFormat();
   const { login, ready, isLoggedIn } = useAuth();
@@ -18,10 +20,30 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
     if (ready && isLoggedIn) router.replace("/home");
   }, [ready, isLoggedIn, router]);
+
+  useEffect(() => {
+    const expiredParam = searchParams.get("expired");
+    let isExpiredStorage = false;
+    try {
+      if (typeof window !== "undefined") {
+        isExpiredStorage = window.sessionStorage.getItem("session_expired") === "1";
+        if (isExpiredStorage) {
+          window.sessionStorage.removeItem("session_expired");
+        }
+      }
+    } catch {
+      /* noop */
+    }
+
+    if (expiredParam === "1" || expiredParam === "true" || isExpiredStorage) {
+      setToast(t("sessionExpired"));
+    }
+  }, [searchParams, t]);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -36,6 +58,83 @@ export default function LoginPage() {
       setLoading(false);
     }
   }
+
+  return (
+    <div className="w-full max-w-sm">
+      <div className="mb-8 flex items-center justify-between">
+        <span className="grid h-12 w-12 place-items-center rounded-[14px] bg-accent text-lg font-bold text-white lg:hidden">
+          B
+        </span>
+        <span className="ml-auto">
+          <LocaleSwitcher compact />
+        </span>
+      </div>
+
+      {toast && (
+        <div className="mb-6 flex items-start justify-between gap-2 rounded-[12px] border border-coral-200 bg-coral-50 px-4 py-3 text-[13px] font-medium text-coral-700 shadow-sm animate-in fade-in">
+          <div className="flex items-center gap-2">
+            <span className="text-base leading-none">⚠️</span>
+            <span>{toast}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setToast(null)}
+            className="text-xs font-semibold text-coral-600 hover:text-coral-800"
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      <h2 className="text-2xl font-semibold tracking-tight">{t("loginTitle")}</h2>
+      <p className="mt-1.5 text-sm text-muted">{t("loginSubtitle")}</p>
+
+      <form onSubmit={onSubmit} className="mt-7 space-y-4">
+        <Field label={t("email")} required>
+          <Input
+            type="email"
+            autoComplete="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com"
+          />
+        </Field>
+        <Field label={t("password")} required>
+          <Input
+            type="password"
+            autoComplete="current-password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+          />
+        </Field>
+
+        {error && (
+          <p className="rounded-[12px] bg-[#fdeaef] px-3.5 py-2.5 text-[13px] text-[#b21232]">
+            {error}
+          </p>
+        )}
+
+        <Button type="submit" size="lg" loading={loading} className="w-full">
+          {t("loginTitle")}
+        </Button>
+      </form>
+
+      <p className="mt-6 text-center text-sm text-muted">
+        {t("noAccount")}{" "}
+        <Link href="/signup" className="font-semibold text-accent-text hover:underline">
+          {t("signupTitle")}
+        </Link>
+      </p>
+    </div>
+  );
+}
+
+export default function LoginPage() {
+  const t = useTranslations("auth");
 
   return (
     <div className="ambient-bg grid min-h-dvh lg:grid-cols-2">
@@ -68,58 +167,9 @@ export default function LoginPage() {
       </section>
 
       <section className="flex items-center justify-center px-5 py-12">
-        <div className="w-full max-w-sm">
-          <div className="mb-8 flex items-center justify-between">
-            <span className="grid h-12 w-12 place-items-center rounded-[14px] bg-accent text-lg font-bold text-white lg:hidden">
-              B
-            </span>
-            <span className="ml-auto">
-              <LocaleSwitcher compact />
-            </span>
-          </div>
-          <h2 className="text-2xl font-semibold tracking-tight">{t("loginTitle")}</h2>
-          <p className="mt-1.5 text-sm text-muted">{t("loginSubtitle")}</p>
-
-          <form onSubmit={onSubmit} className="mt-7 space-y-4">
-            <Field label={t("email")} required>
-              <Input
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-              />
-            </Field>
-            <Field label={t("password")} required>
-              <Input
-                type="password"
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-              />
-            </Field>
-
-            {error && (
-              <p className="rounded-[12px] bg-[#fdeaef] px-3.5 py-2.5 text-[13px] text-[#b21232]">
-                {error}
-              </p>
-            )}
-
-            <Button type="submit" size="lg" loading={loading} className="w-full">
-              {t("loginTitle")}
-            </Button>
-          </form>
-
-          <p className="mt-6 text-center text-sm text-muted">
-            {t("noAccount")}{" "}
-            <Link href="/signup" className="font-semibold text-accent-text hover:underline">
-              {t("signupTitle")}
-            </Link>
-          </p>
-        </div>
+        <Suspense fallback={<div className="w-full max-w-sm" />}>
+          <LoginForm />
+        </Suspense>
       </section>
     </div>
   );

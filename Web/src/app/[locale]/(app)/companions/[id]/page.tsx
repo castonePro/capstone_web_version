@@ -4,6 +4,7 @@
 import { use, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { ApiError } from "@/lib/api/client";
 import { companionApi, plannerApi } from "@/lib/api/endpoints";
 import { useAsync } from "@/lib/hooks/useAsync";
 import { useAuth } from "@/lib/auth/AuthProvider";
@@ -36,7 +37,9 @@ export default function CompanionDetailPage({ params }: { params: Promise<{ id: 
   const { userId, me } = useAuth();
 
   const { data, loading, error, reload } = useAsync(() => companionApi.detail(id), [id]);
+  const [isApplied, setIsApplied] = useState(false);
   const [applyOpen, setApplyOpen] = useState(false);
+  const [applyError, setApplyError] = useState<string | null>(null);
   const [introduction, setIntroduction] = useState("");
   const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
@@ -47,6 +50,21 @@ export default function CompanionDetailPage({ params }: { params: Promise<{ id: 
   const [reportOpen, setReportOpen] = useState(false);
 
   const isHost = !!data && !!userId && data.hostId === userId;
+  const joined = useAsync(
+    () => (userId ? companionApi.myJoined() : Promise.resolve([])),
+    [userId],
+  );
+
+  useEffect(() => {
+    if (joined.data && data) {
+      const already = joined.data.some(
+        (c) => String(c.companionId) === String(data.companionId),
+      );
+      if (already) {
+        setIsApplied(true);
+      }
+    }
+  }, [joined.data, data]);
   const itinerary = useAsync(
     () => (data ? plannerApi.detail(data.itineraryId) : Promise.resolve(null)),
     [data?.itineraryId],
@@ -78,13 +96,47 @@ export default function CompanionDetailPage({ params }: { params: Promise<{ id: 
 
   async function submitApply() {
     setBusy(true);
+    setApplyError(null);
     try {
       await companionApi.apply(id, introduction.trim());
+      setIsApplied(true);
       setApplyOpen(false);
-      setToast(t("applySent"));
+      const successMsg = t("applySent");
+      setToast(successMsg);
+      if (typeof window !== "undefined") {
+        alert(successMsg);
+      }
       reload();
-    } catch (e) {
-      setToast(f.apiError(e));
+    } catch (e: unknown) {
+      // 백엔드에서 내려준 에러 메시지 추출
+      const anyErr = e as Record<string, unknown>;
+      const res = anyErr?.response as { data?: { message?: string; code?: string } } | undefined;
+      const backendMessage =
+        res?.data?.message ||
+        (e instanceof ApiError ? e.message : "") ||
+        (e instanceof Error ? e.message : "") ||
+        "참여 신청에 실패했습니다.";
+
+      const errorMessage = f.apiError(e) || backendMessage;
+
+      // 이미 신청한 모집글 에러인 경우 isApplied 상태를 갱신하여 중복 신청 방지
+      const isAlreadyApplied =
+        (e instanceof ApiError && e.code === "COMPANION_ALREADY_APPLIED") ||
+        res?.data?.code === "COMPANION_ALREADY_APPLIED" ||
+        (typeof backendMessage === "string" &&
+          (backendMessage.includes("이미 신청") ||
+            backendMessage.toLowerCase().includes("already applied")));
+
+      if (isAlreadyApplied) {
+        setIsApplied(true);
+      }
+
+      // 화면에 에러 메시지 노출 (화면 이동/종료 없이 모달 및 화면 상태 유지)
+      setApplyError(errorMessage);
+      setToast(errorMessage);
+      if (typeof window !== "undefined") {
+        alert(errorMessage);
+      }
     } finally {
       setBusy(false);
     }
@@ -95,7 +147,7 @@ export default function CompanionDetailPage({ params }: { params: Promise<{ id: 
   if (!data) return null;
 
   const full = data.approvedCount >= data.maxParticipants;
-  const canApply = !isHost && data.status === "RECRUITING" && !full;
+  const canApply = !isHost && data.status === "RECRUITING" && !full && !isApplied;
 
   return (
     <div>
@@ -232,12 +284,21 @@ export default function CompanionDetailPage({ params }: { params: Promise<{ id: 
                 />
               ) : (
                 <>
-                  <Button className="w-full" disabled={!canApply} onClick={() => setApplyOpen(true)}>
-                    {data.status !== "RECRUITING"
-                      ? t("closedForApplications")
-                      : full
-                        ? t("full")
-                        : t("apply")}
+                  <Button
+                    className="w-full"
+                    disabled={!canApply}
+                    onClick={() => {
+                      setApplyError(null);
+                      setApplyOpen(true);
+                    }}
+                  >
+                    {isApplied
+                      ? t("appliedPending")
+                      : data.status !== "RECRUITING"
+                        ? t("closedForApplications")
+                        : full
+                          ? t("full")
+                          : t("apply")}
                   </Button>
                   {me && !me.phone_verified && (
                     <Link href="/verify-phone" className="block">
@@ -298,26 +359,43 @@ export default function CompanionDetailPage({ params }: { params: Promise<{ id: 
       {/* ─── 참여 신청 모달 ─── */}
       <Modal
         open={applyOpen}
-        onClose={() => setApplyOpen(false)}
+        onClose={() => {
+          setApplyOpen(false);
+          setApplyError(null);
+        }}
         title={t("apply")}
         footer={
           <>
-            <Button variant="ghost" onClick={() => setApplyOpen(false)}>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setApplyOpen(false);
+                setApplyError(null);
+              }}
+            >
               {c("cancel")}
             </Button>
-            <Button loading={busy} onClick={() => void submitApply()}>
-              {t("sendApplication")}
+            <Button loading={busy} disabled={isApplied} onClick={() => void submitApply()}>
+              {isApplied ? t("appliedPending") : t("sendApplication")}
             </Button>
           </>
         }
       >
-        <Field label={t("selfIntro")} hint={t("selfIntroHint")}>
-          <Textarea
-            value={introduction}
-            onChange={(e) => setIntroduction(e.target.value)}
-            placeholder={t("selfIntroPlaceholder")}
-          />
-        </Field>
+        <div className="space-y-4">
+          {applyError && (
+            <div className="rounded-[12px] border border-[#f3c9d3] bg-[#fdeaef] px-4 py-3 text-[13px] text-[#b21232]">
+              {applyError}
+            </div>
+          )}
+          <Field label={t("selfIntro")} hint={t("selfIntroHint")}>
+            <Textarea
+              value={introduction}
+              onChange={(e) => setIntroduction(e.target.value)}
+              placeholder={t("selfIntroPlaceholder")}
+              disabled={isApplied}
+            />
+          </Field>
+        </div>
       </Modal>
 
       {/* ─── 인원 미달 결정 모달 ─── */}

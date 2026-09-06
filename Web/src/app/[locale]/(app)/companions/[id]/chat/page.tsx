@@ -35,11 +35,33 @@ export default function CompanionChatPage({ params }: { params: Promise<{ id: st
   const connRef = useRef<StompConnection | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
+function normalizeCompanionChatMessage(raw: unknown): CompanionChatMessage {
+  if (!raw || typeof raw !== "object") {
+    return {
+      messageId: `${Date.now()}-${Math.random()}`,
+      companionId: "",
+      senderId: "",
+      senderNickname: "",
+      content: "",
+      createdAt: new Date().toISOString(),
+    };
+  }
+  const r = raw as Record<string, unknown>;
+  return {
+    messageId: String(r.messageId ?? r.message_id ?? r.id ?? `${Date.now()}-${Math.random()}`),
+    companionId: String(r.companionId ?? r.companion_id ?? ""),
+    senderId: String(r.senderId ?? r.sender_id ?? ""),
+    senderNickname: String(r.senderNickname ?? r.sender_nickname ?? ""),
+    content: String(r.content ?? ""),
+    createdAt: String(r.createdAt ?? r.created_at ?? new Date().toISOString()),
+  };
+}
+
   useEffect(() => {
     let alive = true;
     companionApi
       .chatMessages(id)
-      .then((res) => alive && setMessages(res))
+      .then((res) => alive && setMessages(Array.isArray(res) ? res.map(normalizeCompanionChatMessage) : []))
       .catch((e) => alive && setError(e))
       .finally(() => alive && setLoading(false));
     return () => {
@@ -48,12 +70,14 @@ export default function CompanionChatPage({ params }: { params: Promise<{ id: st
   }, [id]);
 
   useEffect(() => {
-    const conn = connectStomp<CompanionChatMessage>({
+    const conn = connectStomp<unknown>({
       topic: `/topic/companion-chat/${id}`,
-      onMessage: (msg) =>
+      onMessage: (msg) => {
+        const item = normalizeCompanionChatMessage(msg);
         setMessages((prev) =>
-          prev.some((m) => m.messageId === msg.messageId) ? prev : [...prev, msg],
-        ),
+          prev.some((m) => m.messageId === item.messageId) ? prev : [...prev, item],
+        );
+      },
       onStatus: setStatus,
     });
     connRef.current = conn;

@@ -94,12 +94,16 @@ export class ApiError extends Error {
    * 코드가 없으면(구버전 응답) message(한국어)를 그대로 쓴다.
    */
   readonly code?: string;
+  /** Axios / Dio 형식 호환을 위한 response 객체 (error.response?.data?.message 접근 가능) */
+  readonly response?: { status: number; data?: unknown };
+
   constructor(status: number, message: string, body?: unknown, code?: string) {
     super(message);
     this.name = "ApiError";
     this.status = status;
     this.body = body;
     this.code = code;
+    this.response = { status, data: body };
   }
 }
 
@@ -198,6 +202,13 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 
   if (res.status === 401) {
     AuthStorage.clear();
+    if (isBrowser()) {
+      try {
+        window.sessionStorage.setItem("session_expired", "1");
+      } catch {
+        /* noop */
+      }
+    }
     onUnauthorized?.();
     throw new ApiError(401, "Unauthorized", undefined, "UNAUTHORIZED");
   }
@@ -216,19 +227,31 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 
   if (!res.ok) {
     const obj = parsed && typeof parsed === "object" ? (parsed as Record<string, unknown>) : null;
+    const nestedDataMsg =
+      obj && typeof obj.data === "object" && obj.data !== null && "message" in (obj.data as Record<string, unknown>)
+        ? String((obj.data as Record<string, unknown>).message)
+        : undefined;
     const message =
-      (obj && "message" in obj
+      (obj && "message" in obj && obj.message != null
         ? String(obj.message)
-        : typeof parsed === "string"
-          ? parsed
-          : "") || `HTTP ${res.status}`;
+        : nestedDataMsg ||
+          (obj && "error" in obj && typeof obj.error === "string" && obj.error ? obj.error : "") ||
+          (obj && "errorMessage" in obj && typeof obj.errorMessage === "string" && obj.errorMessage
+            ? obj.errorMessage
+            : "") ||
+          (typeof parsed === "string" ? parsed : "")) || `HTTP ${res.status}`;
     // GlobalExceptionHandler가 ErrorResponse에 code를 담아 주면 그걸 쓴다
     const code =
       obj && typeof obj.code === "string"
         ? obj.code
         : obj && typeof obj.errorCode === "string"
           ? obj.errorCode
-          : undefined;
+          : obj &&
+              typeof obj.data === "object" &&
+              obj.data !== null &&
+              typeof (obj.data as Record<string, unknown>).code === "string"
+            ? ((obj.data as Record<string, unknown>).code as string)
+            : undefined;
     throw new ApiError(res.status, message, parsed, code);
   }
 

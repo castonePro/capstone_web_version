@@ -68,6 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(() => {
     AuthStorage.clear();
     try {
+      window.sessionStorage.removeItem("session_expired");
       window.localStorage.removeItem(GUIDE_MODE_KEY);
     } catch {
       /* noop */
@@ -81,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.replace("/login");
   }, [router]);
 
-  // 401이 뜨면 세션을 정리하고 로그인 화면으로 (Dio 인터셉터와 동일한 동작)
+  // 401이 뜨면 세션을 정리하고 세션 만료 알림과 함께 로그인 화면으로 (Dio 인터셉터와 동일한 동작)
   useEffect(() => {
     setUnauthorizedHandler(() => {
       setToken(null);
@@ -90,7 +91,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsGuide(false);
       setIsGuideMode(false);
       setMe(null);
-      router.replace("/login");
+      try {
+        window.sessionStorage.setItem("session_expired", "1");
+      } catch {
+        /* noop */
+      }
+      router.replace("/login?expired=1");
     });
     return () => setUnauthorizedHandler(null);
   }, [router]);

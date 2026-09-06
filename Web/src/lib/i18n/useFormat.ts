@@ -115,13 +115,22 @@ export function useFormat() {
     apiError(err: unknown): string {
       if (err instanceof ApiError) {
         if (err.code) {
-          const translated = e(err.code);
-          // 번역이 없으면 getMessageFallback이 키 조각을 돌려주므로 그때는 서버 문구를 쓴다
-          if (translated && translated !== err.code) return translated;
+          try {
+            const translated = e(err.code);
+            // 번역이 없으면 getMessageFallback이 키 조각을 돌려주므로 그때는 서버 문구를 쓴다
+            if (translated && translated !== err.code) return translated;
+          } catch {
+            /* noop */
+          }
         }
         if (err.status === 0) return e("network");
         if (err.status === 401) return e("UNAUTHORIZED");
         if (err.message) return err.message;
+      }
+      if (err && typeof err === "object") {
+        const anyErr = err as Record<string, unknown>;
+        const res = anyErr.response as { data?: { message?: string } } | undefined;
+        if (res?.data?.message) return String(res.data.message);
       }
       return rawErrorMessage(err) || e("unknown");
     },
