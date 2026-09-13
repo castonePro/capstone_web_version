@@ -22,6 +22,7 @@
     "notVerified": "Not verified",
     "ok": "OK",
     "retry": "Try again",
+    "save": "Save",
     "search": "Search",
     "sort": "Sort",
     "submit": "Submit",
@@ -274,6 +275,14 @@
     "placeInfo": "Place info",
     "hours": "Open {value}",
     "openMap": "Open in maps"
+  },
+  "maps": {
+    "noApiKey": "A Maps API key is required to show this map",
+    "walk": "Walk",
+    "drive": "Drive",
+    "routeError": "Couldn't load the route",
+    "calculating": "Calculating route…",
+    "estimated": "estimated"
   },
   "ai": {
     "title": "AI Trip Planner",
@@ -740,6 +749,9 @@
     "notRegistered": "Not set",
     "phoneVerification": "Identity verification",
     "noEditApiNotice": "The backend doesn't have an endpoint for changing your display name or photo yet, so this screen is read-only. Once the endpoint below exists, this form just needs wiring up.",
+    "saveCta": "Save",
+    "saveSuccess": "Saved",
+    "nicknamePlaceholder": "Enter a nickname",
     "menu": {
       "myCompanions": { "label": "My Companions", "desc": "Trips you host and trips you've joined" },
       "myBids": { "label": "My Requests", "desc": "Itineraries you offered to guides, and their bids" },

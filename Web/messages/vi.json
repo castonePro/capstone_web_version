@@ -22,6 +22,7 @@
     "notVerified": "Chưa xác minh",
     "ok": "OK",
     "retry": "Thử lại",
+    "save": "Lưu",
     "search": "Tìm kiếm",
     "sort": "Sắp xếp",
     "submit": "Gửi",
@@ -274,6 +275,14 @@
     "placeInfo": "Thông tin địa điểm",
     "hours": "Mở cửa {value}",
     "openMap": "Xem trên bản đồ"
+  },
+  "maps": {
+    "noApiKey": "Cần có khóa API Bản đồ để hiển thị bản đồ này",
+    "walk": "Đi bộ",
+    "drive": "Lái xe",
+    "routeError": "Không tải được lộ trình",
+    "calculating": "Đang tính lộ trình…",
+    "estimated": "ước tính"
   },
   "ai": {
     "title": "AI lập lịch trình",
@@ -740,6 +749,9 @@
     "notRegistered": "Chưa nhập",
     "phoneVerification": "Xác minh danh tính",
     "noEditApiNotice": "Backend chưa có API đổi tên hiển thị và ảnh đại diện nên màn hình này chỉ để xem. Khi API dưới đây có, chỉ cần nối biểu mẫu này vào.",
+    "saveCta": "Lưu",
+    "saveSuccess": "Đã lưu",
+    "nicknamePlaceholder": "Nhập biệt danh",
     "menu": {
       "myCompanions": { "label": "Chuyến của tôi", "desc": "Chuyến tôi tổ chức · chuyến tôi tham gia" },
       "myBids": { "label": "Đề xuất của tôi", "desc": "Lịch trình gửi cho HDV và ai đã đấu giá" },

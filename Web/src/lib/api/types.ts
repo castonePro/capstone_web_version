@@ -61,6 +61,15 @@ export interface TravelPlace {
 export interface TravelPlaceDetail extends TravelPlace {
   homepage: string;
   overview: string;
+  latitude: number | null;
+  longitude: number | null;
+}
+
+// ─── routes (RouteResponseDto — 자동차 경로 계산, 네이버클라우드 Directions API 기반) ───
+export interface RouteResult {
+  distanceMeters: number;
+  durationSec: number;
+  path: { lat: number; lng: number }[];
 }
 
 // ─── planner ───

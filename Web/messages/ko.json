@@ -22,6 +22,7 @@
     "notVerified": "미인증",
     "ok": "확인",
     "retry": "다시 시도",
+    "save": "저장",
     "search": "검색",
     "sort": "정렬",
     "submit": "등록",
@@ -274,6 +275,14 @@
     "placeInfo": "장소 정보",
     "hours": "운영 {value}",
     "openMap": "지도에서 보기"
+  },
+  "maps": {
+    "noApiKey": "지도를 사용하려면 API 키가 필요합니다",
+    "walk": "도보",
+    "drive": "자동차",
+    "routeError": "경로를 불러오지 못했습니다",
+    "calculating": "경로 계산 중…",
+    "estimated": "추정"
   },
   "ai": {
     "title": "AI 여행 플래너",
@@ -740,6 +749,9 @@
     "notRegistered": "미등록",
     "phoneVerification": "본인 인증",
     "noEditApiNotice": "닉네임·프로필 사진 변경 API가 백엔드에 아직 없어 이 화면에서는 수정할 수 없습니다. 아래 API가 추가되면 이 폼만 연결하면 됩니다.",
+    "saveCta": "저장",
+    "saveSuccess": "저장되었습니다",
+    "nicknamePlaceholder": "닉네임을 입력하세요",
     "menu": {
       "myCompanions": { "label": "내 동행", "desc": "내가 연 방 · 참여한 동행" },
       "myBids": { "label": "내 제안 현황", "desc": "가이드에게 올린 일정과 지원 가이드" },
