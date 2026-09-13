@@ -22,6 +22,7 @@
     "notVerified": "未認証",
     "ok": "OK",
     "retry": "再試行",
+    "save": "保存",
     "search": "検索",
     "sort": "並び替え",
     "submit": "送信",
@@ -274,6 +275,14 @@
     "placeInfo": "スポット情報",
     "hours": "営業 {value}",
     "openMap": "地図で見る"
+  },
+  "maps": {
+    "noApiKey": "地図を表示するにはAPIキーが必要です",
+    "walk": "徒歩",
+    "drive": "車",
+    "routeError": "経路を読み込めませんでした",
+    "calculating": "経路を計算中…",
+    "estimated": "推定"
   },
   "ai": {
     "title": "AI旅行プランナー",
@@ -740,6 +749,9 @@
     "notRegistered": "未登録",
     "phoneVerification": "本人確認",
     "noEditApiNotice": "ニックネームやプロフィール写真を変更するAPIがバックエンドにまだないため、この画面では編集できません。以下のAPIが追加されれば、このフォームをつなぐだけで使えます。",
+    "saveCta": "保存",
+    "saveSuccess": "保存しました",
+    "nicknamePlaceholder": "ニックネームを入力してください",
     "menu": {
       "myCompanions": { "label": "マイ同行", "desc": "募集した同行 · 参加した同行" },
       "myBids": { "label": "マイ提案状況", "desc": "ガイドに提案した旅程と入札ガイド" },

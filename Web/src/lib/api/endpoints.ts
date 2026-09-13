@@ -31,6 +31,7 @@ import type {
   PlannerResponse,
   ReceivedReviewList,
   Report,
+  RouteResult,
   ReportReason,
   ReviewableMember,
   SendCodeResponse,
@@ -144,6 +145,27 @@ export const plannerApi = {
   /** DELETE /api/v1/planner/itineraries/{id} */
   remove: (itineraryId: number | string) =>
     api.delete<void>(`/api/v1/planner/itineraries/${itineraryId}`),
+};
+
+/* ────────────────────────── routes (자동차 경로 계산) ────────────────────────── */
+
+export const routeApi = {
+  /**
+   * GET /api/v1/routes/drive — 백엔드가 네이버클라우드 Directions API를 대신 호출해서
+   * 자동차 경로(거리·소요시간·경로좌표)를 내려준다.
+   *
+   * (네이버 Client Secret은 브라우저에 노출되면 안 되는 키라서, 프론트가 네이버를
+   *  직접 호출하지 않고 반드시 이 백엔드 엔드포인트를 거친다.)
+   *
+   * waypoints: "lat,lng|lat,lng" 형식, 최대 5개(Directions 5 API 제한)
+   */
+  drive: (params: {
+    originLat: number;
+    originLng: number;
+    destLat: number;
+    destLng: number;
+    waypoints?: string;
+  }) => api.get<RouteResult>("/api/v1/routes/drive", { query: params }),
 };
 
 /* ────────────────────────── companions ────────────────────────── */

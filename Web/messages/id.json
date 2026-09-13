@@ -22,6 +22,7 @@
     "notVerified": "Belum terverifikasi",
     "ok": "OK",
     "retry": "Coba lagi",
+    "save": "Simpan",
     "search": "Cari",
     "sort": "Urutkan",
     "submit": "Kirim",
@@ -274,6 +275,14 @@
     "placeInfo": "Info tempat",
     "hours": "Buka {value}",
     "openMap": "Lihat di peta"
+  },
+  "maps": {
+    "noApiKey": "Diperlukan kunci API Peta untuk menampilkan peta ini",
+    "walk": "Jalan kaki",
+    "drive": "Berkendara",
+    "routeError": "Gagal memuat rute",
+    "calculating": "Menghitung rute…",
+    "estimated": "perkiraan"
   },
   "ai": {
     "title": "AI Perencana Perjalanan",
@@ -740,6 +749,9 @@
     "notRegistered": "Belum diisi",
     "phoneVerification": "Verifikasi identitas",
     "noEditApiNotice": "Backend belum punya endpoint untuk mengubah nama tampilan atau foto profil, jadi halaman ini hanya bisa dibaca. Begitu endpoint di bawah tersedia, formulir ini tinggal disambungkan.",
+    "saveCta": "Simpan",
+    "saveSuccess": "Tersimpan",
+    "nicknamePlaceholder": "Masukkan nama panggilan",
     "menu": {
       "myCompanions": { "label": "Trip Saya", "desc": "Trip yang saya selenggarakan · yang saya ikuti" },
       "myBids": { "label": "Penawaran Saya", "desc": "Rencana yang ditawarkan ke pemandu dan penawarannya" },

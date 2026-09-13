@@ -22,6 +22,7 @@
     "notVerified": "未认证",
     "ok": "确定",
     "retry": "重试",
+    "save": "保存",
     "search": "搜索",
     "sort": "排序",
     "submit": "提交",
@@ -274,6 +275,14 @@
     "placeInfo": "地点信息",
     "hours": "营业 {value}",
     "openMap": "在地图中查看"
+  },
+  "maps": {
+    "noApiKey": "需要地图 API 密钥才能显示地图",
+    "walk": "步行",
+    "drive": "驾车",
+    "routeError": "无法加载路线",
+    "calculating": "正在计算路线…",
+    "estimated": "预估"
   },
   "ai": {
     "title": "AI 行程规划师",
@@ -740,6 +749,9 @@
     "notRegistered": "未填写",
     "phoneVerification": "实名认证",
     "noEditApiNotice": "后端还没有修改昵称和头像的接口，所以此页面暂时只读。等下面的接口上线后，把这个表单接上即可。",
+    "saveCta": "保存",
+    "saveSuccess": "已保存",
+    "nicknamePlaceholder": "请输入昵称",
     "menu": {
       "myCompanions": { "label": "我的同行", "desc": "我发起的 · 我参与的" },
       "myBids": { "label": "我的提案", "desc": "提交给向导的行程与出价向导" },
