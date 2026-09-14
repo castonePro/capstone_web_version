@@ -282,7 +282,8 @@
     "drive": "Drive",
     "routeError": "Couldn't load the route",
     "calculating": "Calculating route…",
-    "estimated": "estimated"
+    "estimated": "estimated",
+    "mapError": "Something went wrong while showing the map"
   },
   "ai": {
     "title": "AI Trip Planner",

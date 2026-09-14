@@ -282,7 +282,8 @@
     "drive": "Berkendara",
     "routeError": "Gagal memuat rute",
     "calculating": "Menghitung rute…",
-    "estimated": "perkiraan"
+    "estimated": "perkiraan",
+    "mapError": "Terjadi masalah saat menampilkan peta"
   },
   "ai": {
     "title": "AI Perencana Perjalanan",

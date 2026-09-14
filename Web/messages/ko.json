@@ -282,7 +282,8 @@
     "drive": "자동차",
     "routeError": "경로를 불러오지 못했습니다",
     "calculating": "경로 계산 중…",
-    "estimated": "추정"
+    "estimated": "추정",
+    "mapError": "지도를 표시하는 중 문제가 발생했습니다"
   },
   "ai": {
     "title": "AI 여행 플래너",
