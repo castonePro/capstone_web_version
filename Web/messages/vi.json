@@ -282,7 +282,8 @@
     "drive": "Lái xe",
     "routeError": "Không tải được lộ trình",
     "calculating": "Đang tính lộ trình…",
-    "estimated": "ước tính"
+    "estimated": "ước tính",
+    "mapError": "Đã xảy ra sự cố khi hiển thị bản đồ"
   },
   "ai": {
     "title": "AI lập lịch trình",

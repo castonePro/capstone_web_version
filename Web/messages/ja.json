@@ -282,7 +282,8 @@
     "drive": "車",
     "routeError": "経路を読み込めませんでした",
     "calculating": "経路を計算中…",
-    "estimated": "推定"
+    "estimated": "推定",
+    "mapError": "地図の表示中に問題が発生しました"
   },
   "ai": {
     "title": "AI旅行プランナー",

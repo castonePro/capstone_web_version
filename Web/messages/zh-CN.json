@@ -282,7 +282,8 @@
     "drive": "驾车",
     "routeError": "无法加载路线",
     "calculating": "正在计算路线…",
-    "estimated": "预估"
+    "estimated": "预估",
+    "mapError": "显示地图时出现问题"
   },
   "ai": {
     "title": "AI 行程规划师",
