@@ -7,6 +7,7 @@ import { Link } from "@/i18n/navigation";
 import { guideApi } from "@/lib/api/endpoints";
 import { useAsync } from "@/lib/hooks/useAsync";
 import { useFormat } from "@/lib/i18n/useFormat";
+import { toast, showDeleteErrorToast } from "@/lib/toast";
 import { Button, EmptyState, ErrorState, LoadingBlock, Modal, PageHeader } from "@/components/ui";
 import { GuideProductCard } from "@/components/cards";
 
@@ -17,16 +18,19 @@ export default function GuideProductsPage() {
   const { data, loading, error, reload } = useAsync(() => guideApi.myProducts(), []);
   const [busy, setBusy] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
 
-  async function run(id: string, fn: () => Promise<unknown>, message: string) {
+  async function run(id: string, fn: () => Promise<unknown>, message: string, isDelete = false) {
     setBusy(id);
     try {
       await fn();
-      setToast(message);
+      toast.success(message);
       reload();
     } catch (e) {
-      setToast(f.apiError(e));
+      if (isDelete) {
+        showDeleteErrorToast(e);
+      } else {
+        toast.error(f.apiError(e));
+      }
     } finally {
       setBusy(null);
       setConfirmDelete(null);
@@ -44,12 +48,6 @@ export default function GuideProductsPage() {
           </Link>
         }
       />
-
-      {toast && (
-        <div className="mb-4 rounded-[12px] border border-line bg-sand px-4 py-3 text-[13px] text-ink2">
-          {toast}
-        </div>
-      )}
 
       {loading ? (
         <LoadingBlock />
@@ -116,7 +114,7 @@ export default function GuideProductsPage() {
               loading={busy === confirmDelete}
               onClick={() =>
                 confirmDelete &&
-                void run(confirmDelete, () => guideApi.remove(confirmDelete), t("toastDeleted"))
+                void run(confirmDelete, () => guideApi.remove(confirmDelete), t("toastDeleted"), true)
               }
             >
               {c("delete")}

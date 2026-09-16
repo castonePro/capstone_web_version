@@ -7,11 +7,12 @@
  * Flutter main_page.dart의 IndexedStack + BottomNavigationBar를 대체한다.
  */
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth/AuthProvider";
-import { notificationApi } from "@/lib/api/endpoints";
+import { useNotifications } from "@/lib/notifications/NotificationProvider";
+import { NotificationDrawer } from "@/components/notifications/NotificationDrawer";
 import { cx, Spinner } from "@/components/ui";
 import {
   GUIDE_NAV,
@@ -28,20 +29,36 @@ function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-function NavLink({ item, pathname }: { item: NavItem; pathname: string }) {
+function NavLink({
+  item,
+  pathname,
+  unreadCount,
+}: {
+  item: NavItem;
+  pathname: string;
+  unreadCount?: number;
+}) {
   const t = useTranslations("nav");
   const active = isActive(pathname, item.href);
   const Icon = item.icon;
+  const showBadge = item.href === "/notifications" && (unreadCount ?? 0) > 0;
   return (
     <Link
       href={item.href}
       className={cx(
-        "flex items-center gap-3 rounded-[12px] px-3 py-2.5 text-sm font-medium transition-colors",
+        "flex items-center justify-between rounded-[12px] px-3 py-2.5 text-sm font-medium transition-colors",
         active ? "bg-ink text-white" : "text-ink2 hover:bg-sand",
       )}
     >
-      <Icon width={20} height={20} />
-      {t(item.labelKey)}
+      <span className="flex items-center gap-3">
+        <Icon width={20} height={20} />
+        {t(item.labelKey)}
+      </span>
+      {showBadge && (
+        <span className="grid h-5 min-w-5 place-items-center rounded-full bg-accent px-1.5 text-[11px] font-bold text-white">
+          {(unreadCount ?? 0) > 99 ? "99+" : unreadCount}
+        </span>
+      )}
     </Link>
   );
 }
@@ -52,7 +69,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const t = useTranslations("nav");
   const c = useTranslations("common");
   const { ready, isLoggedIn, isGuide, isGuideMode, setGuideMode, nickname, me, logout } = useAuth();
-  const [unread, setUnread] = useState(0);
+  const { unreadCount, setDrawerOpen } = useNotifications();
 
   // 로그인 안 된 상태면 로그인 화면으로 (앱의 SplashPage 분기와 동일)
   useEffect(() => {
@@ -63,22 +80,6 @@ export function AppShell({ children }: { children: ReactNode }) {
       router.replace(isExpired ? "/login?expired=1" : "/login");
     }
   }, [ready, isLoggedIn, router]);
-
-  useEffect(() => {
-    if (!isLoggedIn) return;
-    let alive = true;
-    const load = () =>
-      notificationApi
-        .unreadCount()
-        .then((n) => alive && setUnread(Number(n) || 0))
-        .catch(() => undefined);
-    void load();
-    const timer = setInterval(load, 60_000);
-    return () => {
-      alive = false;
-      clearInterval(timer);
-    };
-  }, [isLoggedIn, pathname]);
 
   if (!ready || !isLoggedIn) {
     return (
@@ -113,7 +114,12 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         <nav className="flex flex-col gap-1">
           {secondary.map((item) => (
-            <NavLink key={item.href} item={item} pathname={pathname} />
+            <NavLink
+              key={item.href}
+              item={item}
+              pathname={pathname}
+              unreadCount={unreadCount}
+            />
           ))}
         </nav>
 
@@ -181,18 +187,19 @@ export function AppShell({ children }: { children: ReactNode }) {
               {isGuideMode ? t("guideShort") : t("userShort")}
             </button>
           )}
-          <Link
-            href="/notifications"
+          <button
+            type="button"
+            onClick={() => setDrawerOpen(true)}
             aria-label={t("notifications")}
-            className="relative rounded-md p-2 text-ink2 hover:bg-sand"
+            className="relative rounded-md p-2 text-ink2 hover:bg-sand cursor-pointer"
           >
             <IconBell width={20} height={20} />
-            {unread > 0 && (
+            {unreadCount > 0 && (
               <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-accent px-1 text-[10px] font-bold text-white">
-                {unread > 99 ? "99+" : unread}
+                {unreadCount > 99 ? "99+" : unreadCount}
               </span>
             )}
-          </Link>
+          </button>
         </div>
       </header>
 
@@ -200,24 +207,27 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="lg:pl-64">
         {/* 데스크톱 전용 우상단 알림 */}
         <div className="hidden justify-end px-8 pt-5 lg:flex">
-          <Link
-            href="/notifications"
-            className="relative inline-flex items-center gap-2 rounded-[12px] border border-line bg-white px-3 py-2 text-[13px] font-medium text-ink2 hover:border-accent"
+          <button
+            type="button"
+            onClick={() => setDrawerOpen(true)}
+            className="relative inline-flex items-center gap-2 rounded-[12px] border border-line bg-white px-3 py-2 text-[13px] font-medium text-ink2 hover:border-accent cursor-pointer"
           >
             <IconBell width={18} height={18} />
             {t("notifications")}
-            {unread > 0 && (
+            {unreadCount > 0 && (
               <span className="grid h-5 min-w-5 place-items-center rounded-full bg-accent px-1.5 text-[11px] font-bold text-white">
-                {unread > 99 ? "99+" : unread}
+                {unreadCount > 99 ? "99+" : unreadCount}
               </span>
             )}
-          </Link>
+          </button>
         </div>
 
         <main className="mx-auto w-full max-w-[1120px] px-4 pb-28 pt-5 sm:px-6 lg:px-8 lg:pb-16 lg:pt-4">
           {children}
         </main>
       </div>
+
+      <NotificationDrawer />
 
       {/* ─── 모바일 하단 탭바 (앱의 커스텀 BottomNav 대응) ─── */}
       <nav className="fixed inset-x-0 bottom-0 z-30 px-4 pb-4 lg:hidden">

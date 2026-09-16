@@ -125,7 +125,14 @@ export function useFormat() {
         }
         if (err.status === 0) return e("network");
         if (err.status === 401) return e("UNAUTHORIZED");
-        if (err.message) return err.message;
+
+        // 백엔드 에러 응답 객체(response.data.message)가 존재하면 최우선 추출
+        const resData = err.response?.data as Record<string, unknown> | undefined;
+        if (resData && typeof resData.message === "string" && resData.message.trim()) {
+          return resData.message.trim();
+        }
+
+        if (err.message && !/^HTTP\s+\d+$/i.test(err.message)) return err.message;
       }
       if (err && typeof err === "object") {
         const anyErr = err as Record<string, unknown>;

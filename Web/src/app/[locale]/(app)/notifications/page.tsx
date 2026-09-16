@@ -1,16 +1,17 @@
 "use client";
 
 /** Flutter features/notification/ui/notification_list_page.dart 대응 */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { notificationApi } from "@/lib/api/endpoints";
-import { useAsync } from "@/lib/hooks/useAsync";
+import { useRouter } from "@/i18n/navigation";
 import { useFormat } from "@/lib/i18n/useFormat";
+import { useNotifications } from "@/lib/notifications/NotificationProvider";
+import { getNotificationRoute } from "@/components/notifications/NotificationDrawer";
+import type { AppNotification } from "@/lib/api/types";
 import {
   Button,
   Card,
   EmptyState,
-  ErrorState,
   LoadingBlock,
   PageHeader,
   cx,
@@ -20,32 +21,35 @@ import { TranslatableText } from "@/components/TranslatableText";
 export default function NotificationsPage() {
   const t = useTranslations("notifications");
   const f = useFormat();
-  const { data, loading, error, reload, setData } = useAsync(() => notificationApi.list(), []);
+  const router = useRouter();
+  const {
+    notifications,
+    unreadCount,
+    loading,
+    loadNotifications,
+    markAsRead,
+    markAllAsRead,
+  } = useNotifications();
   const [busy, setBusy] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
 
-  const unread = (data ?? []).filter((n) => !n.isRead).length;
+  useEffect(() => {
+    void loadNotifications();
+  }, [loadNotifications]);
 
-  async function markRead(id: string) {
-    // 낙관적 업데이트 — 실패하면 서버 상태로 되돌린다
-    setData((prev) =>
-      (prev ?? []).map((n) => (n.notificationId === id ? { ...n, isRead: true } : n)),
-    );
-    try {
-      await notificationApi.markRead(id);
-    } catch (e) {
-      setToast(f.apiError(e));
-      reload();
+  async function handleItemClick(n: AppNotification) {
+    if (!n.isRead) {
+      await markAsRead(n.notificationId);
+    }
+    const targetUrl = getNotificationRoute(n);
+    if (targetUrl !== "/notifications") {
+      router.push(targetUrl);
     }
   }
 
-  async function markAll() {
+  async function handleMarkAll() {
     setBusy(true);
     try {
-      await notificationApi.markAllRead();
-      reload();
-    } catch (e) {
-      setToast(f.apiError(e));
+      await markAllAsRead();
     } finally {
       setBusy(false);
     }
@@ -55,57 +59,76 @@ export default function NotificationsPage() {
     <div className="max-w-3xl">
       <PageHeader
         title={t("title")}
-        description={unread > 0 ? t("unreadCount", { count: unread }) : t("allRead")}
+        description={unreadCount > 0 ? t("unreadCount", { count: unreadCount }) : t("allRead")}
         action={
-          unread > 0 ? (
-            <Button size="sm" variant="outline" loading={busy} onClick={() => void markAll()}>
+          unreadCount > 0 ? (
+            <Button size="sm" variant="outline" loading={busy} onClick={() => void handleMarkAll()}>
               {t("markAllRead")}
             </Button>
           ) : undefined
         }
       />
 
-      {toast && (
-        <div className="mb-4 rounded-[12px] border border-line bg-sand px-4 py-3 text-[13px] text-ink2">
-          {toast}
-        </div>
-      )}
-
-      {loading ? (
+      {loading && notifications.length === 0 ? (
         <LoadingBlock />
-      ) : error ? (
-        <ErrorState error={error} onRetry={reload} />
-      ) : (data ?? []).length === 0 ? (
+      ) : notifications.length === 0 ? (
         <EmptyState title={t("emptyTitle")} description={t("emptyBody")} />
       ) : (
         <div className="space-y-2">
-          {data!.map((n) => (
-            <Card
-              key={n.notificationId}
-              className={cx(
-                "transition-colors hover:border-accent",
-                !n.isRead && "border-coral-200 bg-coral-50",
-              )}
-            >
-              <button
-                type="button"
-                onClick={() => !n.isRead && void markRead(n.notificationId)}
-                className="w-full text-left"
+          {notifications.map((n) => {
+            const isUnread = !n.isRead;
+            return (
+              <Card
+                key={n.notificationId}
+                className={cx(
+                  "cursor-pointer transition-all hover:border-accent hover:shadow-xs",
+                  isUnread
+                    ? "border-coral-200 bg-coral-50/70"
+                    : "border-line bg-card",
+                )}
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      {!n.isRead && <span className="h-2 w-2 shrink-0 rounded-full bg-accent" />}
-                      <p className="truncate text-sm font-semibold text-ink">{n.title}</p>
+                <div
+                  onClick={() => void handleItemClick(n)}
+                  className="w-full text-left"
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      void handleItemClick(n);
+                    }
+                  }}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        {isUnread && <span className="h-2 w-2 shrink-0 rounded-full bg-accent" />}
+                        <p
+                          className={cx(
+                            "truncate text-sm text-ink",
+                            isUnread ? "font-bold" : "font-semibold",
+                          )}
+                        >
+                          {n.title}
+                        </p>
+                      </div>
+                      {/* 알림 본문은 서버가 한국어로 만들어 저장하므로 번역 컴포넌트 유지 */}
+                      <TranslatableText
+                        text={n.body}
+                        className={cx(
+                          "mt-1 text-[13px]",
+                          isUnread ? "text-ink font-medium" : "text-ink2",
+                        )}
+                      />
                     </div>
-                    {/* 알림 본문은 서버가 한국어로 만들어 저장하므로 번역 버튼을 붙인다 */}
-                    <TranslatableText text={n.body} className="mt-1 text-[13px] text-ink2" />
+                    <p className="shrink-0 text-[11px] text-muted whitespace-nowrap">
+                      {f.relative(n.createdAt)}
+                    </p>
                   </div>
-                  <p className="shrink-0 text-[11px] text-muted">{f.relative(n.createdAt)}</p>
                 </div>
-              </button>
-            </Card>
-          ))}
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>

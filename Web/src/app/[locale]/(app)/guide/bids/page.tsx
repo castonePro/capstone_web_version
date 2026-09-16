@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { bidApi } from "@/lib/api/endpoints";
 import { useAsync } from "@/lib/hooks/useAsync";
 import { useFormat } from "@/lib/i18n/useFormat";
+import { toast, showDeleteErrorToast } from "@/lib/toast";
 import {
   Badge,
   Button,
@@ -25,16 +26,16 @@ export default function GuideBidsPage() {
   const f = useFormat();
   const { data, loading, error, reload } = useAsync(() => bidApi.allBids(), []);
   const [busy, setBusy] = useState<string | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
 
   async function apply(bidId: string) {
     setBusy(bidId);
     try {
       await bidApi.applyToBid(bidId);
-      setToast(t("toastApplied"));
+      toast.success(t("toastApplied"));
+      reload();
     } catch (e) {
-      setToast(f.apiError(e));
+      toast.error(f.apiError(e));
     } finally {
       setBusy(null);
     }
@@ -44,9 +45,10 @@ export default function GuideBidsPage() {
     setBusy(bidId);
     try {
       await bidApi.cancelBidApplication(bidId);
-      setToast(t("toastCanceled"));
+      toast.success(t("toastCanceled"));
+      reload();
     } catch (e) {
-      setToast(f.apiError(e));
+      showDeleteErrorToast(e);
     } finally {
       setBusy(null);
     }
@@ -55,12 +57,6 @@ export default function GuideBidsPage() {
   return (
     <div>
       <PageHeader title={t("guideTitle")} description={t("guideDescription")} />
-
-      {toast && (
-        <div className="mb-4 rounded-[12px] border border-line bg-sand px-4 py-3 text-[13px] text-ink2">
-          {toast}
-        </div>
-      )}
 
       {loading ? (
         <LoadingBlock />
