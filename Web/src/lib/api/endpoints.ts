@@ -3,7 +3,7 @@
  * 각 함수 주석의 경로는 Backend의 @RequestMapping/@GetMapping 등과 1:1로 대응한다.
  * Flutter의 features/(각 도메인)/repository/*.dart 를 대체한다.
  */
-import { api } from "./client";
+import { api, type RequestOptions } from "./client";
 import type {
   AppNotification,
   BidApplication,
@@ -143,8 +143,8 @@ export const plannerApi = {
     api.get<Itinerary>(`/api/v1/planner/itineraries/${itineraryId}`),
 
   /** DELETE /api/v1/planner/itineraries/{id} */
-  remove: (itineraryId: number | string) =>
-    api.delete<void>(`/api/v1/planner/itineraries/${itineraryId}`),
+  remove: (itineraryId: number | string, options?: Omit<RequestOptions, "method" | "body">) =>
+    api.delete<void>(`/api/v1/planner/itineraries/${itineraryId}`, options),
 };
 
 /* ────────────────────────── routes (자동차 경로 계산) ────────────────────────── */
@@ -238,8 +238,13 @@ export const companionApi = {
     api.patch<CompanionApplication>(`/api/v1/companions/applications/${applicationId}/no-show`),
 
   /** DELETE /api/v1/companions/applications/{applicationId} */
-  cancelApplication: (applicationId: string) =>
-    api.delete<void>(`/api/v1/companions/applications/${applicationId}`),
+  cancelApplication: (applicationId: string, options?: Omit<RequestOptions, "method" | "body">) =>
+    api.delete<void>(`/api/v1/companions/applications/${applicationId}`, options),
+
+  /** DELETE /api/v1/companions/{id} — 동행 모집글 삭제 */
+  remove: (companionId: string, options?: Omit<RequestOptions, "method" | "body">) =>
+    api.delete<void>(`/api/v1/companions/${companionId}`, options),
+
 
   /** GET /api/v1/companions/{id}/chat/messages */
   chatMessages: (companionId: string) =>
@@ -286,7 +291,8 @@ export const guideApi = {
     api.put<GuideProduct>(`/api/v1/guide/products/${serviceId}`, body),
 
   /** DELETE /api/v1/guide/products/{serviceId} */
-  remove: (serviceId: string) => api.delete<void>(`/api/v1/guide/products/${serviceId}`),
+  remove: (serviceId: string, options?: Omit<RequestOptions, "method" | "body">) =>
+    api.delete<void>(`/api/v1/guide/products/${serviceId}`, options),
 
   /** PATCH /api/v1/guide/products/{serviceId}/publish */
   togglePublish: (serviceId: string) =>
@@ -380,20 +386,41 @@ export const reviewApi = {
     api.get<GuideReviewSummary>(`/api/v1/reviews/guide/${guideId}/summary`),
 };
 
+/* ────────────────────────── fcm ────────────────────────── */
+
+export const fcmApi = {
+  /** POST /api/v1/fcm/token — FCM 디바이스 토큰 등록 */
+  registerToken: (token: string) =>
+    api.post<void>("/api/v1/fcm/token", { token }),
+};
+
 /* ────────────────────────── notifications ────────────────────────── */
 
 export const notificationApi = {
-  /** GET /api/v1/notifications */
+  /** GET /api/v1/notifications — 내 알림 목록 조회 (최신순) */
   list: () => api.get<AppNotification[]>("/api/v1/notifications"),
 
-  /** GET /api/v1/notifications/unread-count */
-  unreadCount: () => api.get<number>("/api/v1/notifications/unread-count"),
+  /**
+   * GET /api/v1/notifications/unread-count — 안 읽은 알림 개수 조회
+   * 백엔드 응답 스펙: { "unreadCount": 3 } 또는 단일 숫자 호환
+   */
+  unreadCount: async () => {
+    const res = await api.get<{ unreadCount?: number; count?: number } | number>(
+      "/api/v1/notifications/unread-count",
+    );
+    if (typeof res === "number") return res;
+    if (res && typeof res === "object") {
+      if (typeof res.unreadCount === "number") return res.unreadCount;
+      if (typeof res.count === "number") return res.count;
+    }
+    return 0;
+  },
 
-  /** PATCH /api/v1/notifications/{id}/read */
+  /** PATCH /api/v1/notifications/{id}/read — 단일 알림 읽음 처리 */
   markRead: (notificationId: string) =>
     api.patch<void>(`/api/v1/notifications/${notificationId}/read`),
 
-  /** PATCH /api/v1/notifications/read-all */
+  /** PATCH /api/v1/notifications/read-all — 전체 알림 일괄 읽음 처리 */
   markAllRead: () => api.patch<void>("/api/v1/notifications/read-all"),
 };
 

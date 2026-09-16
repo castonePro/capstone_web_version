@@ -7,6 +7,7 @@ import { Link } from "@/i18n/navigation";
 import { bidApi, plannerApi } from "@/lib/api/endpoints";
 import { useAsync } from "@/lib/hooks/useAsync";
 import { useFormat } from "@/lib/i18n/useFormat";
+import { showDeleteErrorToast } from "@/lib/toast";
 import { Button, EmptyState, ErrorState, LoadingBlock, Modal, PageHeader } from "@/components/ui";
 import { ItineraryCard } from "@/components/cards";
 
@@ -26,9 +27,10 @@ export default function TripsPage() {
       setConfirmDelete(null);
       reload();
     } catch (e) {
-      setToast(f.apiError(e));
+      showDeleteErrorToast(e);
     } finally {
       setBusy(null);
+      setConfirmDelete(null);
     }
   }
 

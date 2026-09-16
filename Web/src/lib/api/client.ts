@@ -142,7 +142,9 @@ export function setUnauthorizedHandler(handler: UnauthorizedHandler | null) {
   onUnauthorized = handler;
 }
 
-interface RequestOptions {
+import { showDeleteErrorToast } from "@/lib/toast";
+
+export interface RequestOptions {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: unknown;
   query?: Record<string, string | number | boolean | undefined | null>;
@@ -151,7 +153,52 @@ interface RequestOptions {
   signal?: AbortSignal;
   /** 기본 60초 (Dio의 receiveTimeout과 동일). AI 생성은 더 길게 잡는다. */
   timeoutMs?: number;
+  /** 에러 발생 시 자동으로 에러 토스트를 띄울지 여부 (DELETE 요청은 기본 true) */
+  showErrorToast?: boolean;
+  /** DELETE 요청 등에서 전역 에러 토스트를 표시하지 않으려면 true */
+  suppressErrorToast?: boolean;
+  /** 에러 토스트에 표시할 커스텀 폴백 메시지 */
+  fallbackErrorMessage?: string;
 }
+
+export type ApiErrorInterceptor = (
+  error: ApiError,
+  context: {
+    method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+    path: string;
+    options: RequestOptions;
+  }
+) => void;
+
+const errorInterceptors: ApiErrorInterceptor[] = [];
+
+/**
+ * Axios 응답 인터셉터 역할을 하는 전역 에러 핸들러 등록 함수.
+ */
+export function addApiErrorInterceptor(interceptor: ApiErrorInterceptor): () => void {
+  errorInterceptors.push(interceptor);
+  return () => {
+    const idx = errorInterceptors.indexOf(interceptor);
+    if (idx !== -1) errorInterceptors.splice(idx, 1);
+  };
+}
+
+// 기본 인터셉터: DELETE 요청(또는 showErrorToast: true) 실패 시 백엔드 에러 메시지(FK 제약 등)를 토스트로 자동 안내
+if (typeof window !== "undefined") {
+  addApiErrorInterceptor((error, { method, options }) => {
+    if (options.suppressErrorToast) return;
+    const isDelete = method === "DELETE";
+    if (isDelete || options.showErrorToast) {
+      const fallback =
+        options.fallbackErrorMessage ||
+        (isDelete
+          ? "삭제 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요."
+          : "요청 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+      showDeleteErrorToast(error, fallback);
+    }
+  });
+}
+
 
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { method = "GET", body, query, skipAuth = false, timeoutMs = 60_000 } = options;
@@ -193,10 +240,18 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     });
   } catch (e) {
     clearTimeout(timer);
-    if ((e as Error).name === "AbortError") {
-      throw new ApiError(0, "Request timed out", undefined, "TIMEOUT");
+    const err =
+      (e as Error).name === "AbortError"
+        ? new ApiError(0, "Request timed out", undefined, "TIMEOUT")
+        : new ApiError(0, "Network error", undefined, "network");
+    for (const interceptor of errorInterceptors) {
+      try {
+        interceptor(err, { method, path, options });
+      } catch {
+        /* noop */
+      }
     }
-    throw new ApiError(0, "Network error", undefined, "network");
+    throw err;
   }
   clearTimeout(timer);
 
@@ -252,7 +307,15 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
               typeof (obj.data as Record<string, unknown>).code === "string"
             ? ((obj.data as Record<string, unknown>).code as string)
             : undefined;
-    throw new ApiError(res.status, message, parsed, code);
+    const apiError = new ApiError(res.status, message, parsed, code);
+    for (const interceptor of errorInterceptors) {
+      try {
+        interceptor(apiError, { method, path, options });
+      } catch {
+        /* noop */
+      }
+    }
+    throw apiError;
   }
 
   return parsed as T;
