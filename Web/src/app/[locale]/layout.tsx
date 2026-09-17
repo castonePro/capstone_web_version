@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { AuthProvider } from "@/lib/auth/AuthProvider";
+import { NotificationProvider } from "@/lib/notifications/NotificationProvider";
+import { Toaster } from "@/components/ui/Toaster";
 import { routing, localeTags, type Locale } from "@/i18n/routing";
 import "../globals.css";
 
@@ -53,7 +55,12 @@ export default async function LocaleLayout({
     <html lang={localeTags[locale as Locale]}>
       <body>
         <NextIntlClientProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <NotificationProvider>
+              {children}
+              <Toaster />
+            </NotificationProvider>
+          </AuthProvider>
         </NextIntlClientProvider>
       </body>
     </html>
