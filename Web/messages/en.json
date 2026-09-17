@@ -242,7 +242,7 @@
   },
   "places": {
     "title": "Explore places",
-    "description": "Browse places in Busan by category. The server picks five at random for each category.",
+    "description": "Browse places in Busan by category — five random picks for each one.",
     "searchPlaceholder": "Search by name or address",
     "emptyTitle": "No places to show",
     "emptyBody": "Try another category or clear your search.",

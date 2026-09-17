@@ -9,6 +9,7 @@ import { useAsync } from "@/lib/hooks/useAsync";
 import { recentViews } from "@/lib/storage/recentViews";
 import { Button, Card, ErrorState, LoadingBlock, Tag } from "@/components/ui";
 import { IconBack } from "@/components/layout/icons";
+import { PlaceLocationMap } from "@/components/maps/PlaceLocationMap";
 
 export default function PlaceDetailPage({ params }: { params: Promise<{ placeId: string }> }) {
   const { placeId } = use(params);
@@ -76,7 +77,11 @@ export default function PlaceDetailPage({ params }: { params: Promise<{ placeId:
             />
           )}
 
-          <div className="mt-6 flex flex-wrap gap-2">
+          <div className="mt-4">
+            <PlaceLocationMap latitude={data.latitude} longitude={data.longitude} title={data.title ?? ""} />
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-2">
             <a
               href={`https://map.kakao.com/link/search/${encodeURIComponent(data.title ?? "")}`}
               target="_blank"
