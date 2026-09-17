@@ -242,7 +242,7 @@
   },
   "places": {
     "title": "Khám phá địa điểm",
-    "description": "Duyệt các địa điểm ở Busan theo danh mục. Máy chủ chọn ngẫu nhiên 5 địa điểm cho mỗi danh mục.",
+    "description": "Duyệt các địa điểm ở Busan theo danh mục — mỗi danh mục gợi ý ngẫu nhiên 5 địa điểm.",
     "searchPlaceholder": "Tìm theo tên hoặc địa chỉ",
     "emptyTitle": "Không có địa điểm nào để hiển thị",
     "emptyBody": "Hãy thử danh mục khác hoặc xoá từ khoá tìm kiếm.",

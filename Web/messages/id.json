@@ -242,7 +242,7 @@
   },
   "places": {
     "title": "Jelajahi destinasi",
-    "description": "Telusuri tempat di Busan berdasarkan kategori. Server memilih lima tempat acak untuk tiap kategori.",
+    "description": "Telusuri tempat di Busan berdasarkan kategori — lima tempat acak untuk tiap kategori.",
     "searchPlaceholder": "Cari nama atau alamat",
     "emptyTitle": "Tidak ada destinasi untuk ditampilkan",
     "emptyBody": "Coba kategori lain atau hapus kata kunci pencarian.",

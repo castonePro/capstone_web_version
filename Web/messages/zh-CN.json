@@ -242,7 +242,7 @@
   },
   "places": {
     "title": "探索景点",
-    "description": "按分类浏览釜山的景点。后端会为每个分类随机推荐 5 个地点。",
+    "description": "按分类浏览釜山的景点，每个分类为你随机推荐 5 个地点。",
     "searchPlaceholder": "搜索地点或地址",
     "emptyTitle": "没有可显示的地点",
     "emptyBody": "换一个分类，或清空搜索关键词试试。",
