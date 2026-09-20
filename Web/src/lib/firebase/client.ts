@@ -13,6 +13,7 @@ import {
   VAPID_KEY,
 } from "./firebase";
 import { fcmApi } from "@/lib/api/endpoints";
+import { AuthStorage } from "@/lib/api/client";
 import { toast } from "sonner";
 
 export type FcmMessageHandler = (payload: MessagePayload) => void;
@@ -99,6 +100,41 @@ export async function setupFcmForegroundListener(
 
   try {
     const unsubscribe = onMessage(messaging, (payload) => {
+      // 1) 발신자 체크: 내가 보낸 메시지(FCM 푸시)인 경우 토스트 제외
+      const currentUserId = AuthStorage.getUserId();
+      const rawSenderId =
+        payload.data?.senderId ||
+        payload.data?.sender_id ||
+        payload.data?.userId ||
+        payload.data?.user_id;
+
+      if (
+        currentUserId &&
+        rawSenderId &&
+        String(rawSenderId).toLowerCase() === String(currentUserId).toLowerCase()
+      ) {
+        // 내가 보낸 메시지에 대해서는 알림 토스트를 띄우지 않음
+        return;
+      }
+
+      // 2) 현재 사용자가 해당 채팅방 페이지에 이미 머물고 있는 경우 토스트 제외 (중복 방지)
+      const currentPath =
+        typeof window !== "undefined" ? window.location.pathname : "";
+      const roomId = payload.data?.roomId || payload.data?.room_id;
+      const companionId =
+        payload.data?.companionId || payload.data?.companion_id;
+
+      if (
+        (roomId && currentPath.includes(`/chat/${roomId}`)) ||
+        (companionId && currentPath.includes(`/companions/${companionId}/chat`))
+      ) {
+        // 이미 해당 채팅방을 보고 있으므로 상단 토스트는 생략하고 콜백만 실행
+        if (onForegroundMessage) {
+          onForegroundMessage(payload);
+        }
+        return;
+      }
+
       const title =
         payload.notification?.title || payload.data?.title || "새 알림";
       const body = payload.notification?.body || payload.data?.body || "";
@@ -111,7 +147,9 @@ export async function setupFcmForegroundListener(
           label: "확인",
           onClick: () => {
             if (typeof window !== "undefined") {
-              window.location.href = "/notifications";
+              const clickAction =
+                payload.data?.click_action || "/notifications";
+              window.location.href = clickAction;
             }
           },
         },
