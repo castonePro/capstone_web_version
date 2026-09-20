@@ -11,6 +11,7 @@ import { use, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { chatApi } from "@/lib/api/endpoints";
+import { AuthStorage } from "@/lib/api/client";
 import { connectStomp, type StompConnection } from "@/lib/ws/stomp";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { useFormat } from "@/lib/i18n/useFormat";
@@ -26,6 +27,7 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
   const c = useTranslations("common");
   const f = useFormat();
   const { userId } = useAuth();
+  const myId = userId || (typeof window !== "undefined" ? AuthStorage.getUserId() : null);
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -80,15 +82,27 @@ function normalizeChatMessage(raw: unknown): ChatMessage {
       topic: `/topic/chat/${roomId}`,
       onMessage: (msg) => {
         const item = normalizeChatMessage(msg);
+
+        // 1) 채팅창 대화 내역에는 본인/상대방 상관없이 모두 반영
         setMessages((prev) =>
           prev.some((m) => m.messageId === item.messageId) ? prev : [...prev, item],
         );
+
+        // 2) [수정 핵심] 알림(토스트, 소리 등)은 내가 보낸 메시지가 아닐 때만 실행
+        const currentUserId = myId || AuthStorage.getUserId();
+        const isMyMessage =
+          Boolean(currentUserId) &&
+          String(item.senderId).toLowerCase() === String(currentUserId).toLowerCase();
+
+        if (!isMyMessage) {
+          // 상대방이 보낸 메시지일 때만 알림 트리거 (필요 시 사운드/알림 처리)
+        }
       },
       onStatus: setStatus,
     });
     connRef.current = conn;
     return () => conn.disconnect();
-  }, [roomId]);
+  }, [roomId, myId]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -96,8 +110,9 @@ function normalizeChatMessage(raw: unknown): ChatMessage {
 
   function send() {
     const content = input.trim();
-    if (!content || !userId) return;
-    connRef.current?.send(`/app/chat/${roomId}`, { content, senderId: userId });
+    const currentUserId = myId || AuthStorage.getUserId();
+    if (!content || !currentUserId) return;
+    connRef.current?.send(`/app/chat/${roomId}`, { content, senderId: String(currentUserId) });
     setInput("");
   }
 
@@ -112,7 +127,12 @@ function normalizeChatMessage(raw: unknown): ChatMessage {
     }
   }
 
-  const peerName = messages.find((m) => m.senderId !== userId)?.senderNickname ?? t("peer");
+  const peerName =
+    messages.find(
+      (m) =>
+        m.senderId &&
+        String(m.senderId).toLowerCase() !== String(myId ?? "").toLowerCase(),
+    )?.senderNickname ?? t("peer");
 
   return (
     <div className="flex h-[calc(100dvh-11rem)] flex-col lg:h-[calc(100dvh-8rem)]">
@@ -158,7 +178,9 @@ function normalizeChatMessage(raw: unknown): ChatMessage {
           <p className="py-10 text-center text-[13px] text-muted">{t("empty")}</p>
         ) : (
           messages.map((m) => {
-            const mine = m.senderId === userId;
+            const mine =
+              Boolean(myId) &&
+              String(m.senderId).toLowerCase() === String(myId).toLowerCase();
             return (
               <div
                 key={m.messageId}

@@ -18,9 +18,34 @@ if (firebaseConfig.projectId) {
   firebase.initializeApp(firebaseConfig);
   const messaging = firebase.messaging();
 
-  // 백그라운드 푸시 알림 수신 리스너
-  messaging.onBackgroundMessage((payload) => {
+  // 백그라운드(탭이 닫혀있거나 다른 화면일 때) 푸시 알림 수신
+  messaging.onBackgroundMessage(async (payload) => {
     console.log("[firebase-messaging-sw.js] 백그라운드 푸시 수신:", payload);
+
+    // 해당 채팅방이 현재 열려 있고 포커스된 상태라면 브라우저 알림 억제
+    const roomId = payload.data?.roomId || payload.data?.room_id;
+    const companionId = payload.data?.companionId || payload.data?.companion_id;
+
+    if (roomId || companionId) {
+      try {
+        const windowClients = await clients.matchAll({
+          type: "window",
+          includeUncontrolled: true,
+        });
+        const isFocusedInRoom = windowClients.some((client) => {
+          if (!client.focused) return false;
+          if (roomId && client.url.includes(`/chat/${roomId}`)) return true;
+          if (companionId && client.url.includes(`/companions/${companionId}/chat`))
+            return true;
+          return false;
+        });
+        if (isFocusedInRoom) {
+          return;
+        }
+      } catch {
+        /* noop */
+      }
+    }
 
     const notificationTitle =
       payload.notification?.title || payload.data?.title || "Travel Busan";
