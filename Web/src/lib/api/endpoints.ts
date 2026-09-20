@@ -35,6 +35,8 @@ import type {
   ReportReason,
   ReviewableMember,
   SendCodeResponse,
+  SessionHistory,
+  SessionTurn,
   SignUpResponse,
   TravelPlace,
   TravelPlaceDetail,
@@ -60,6 +62,10 @@ export const authApi = {
 export const userApi = {
   /** GET /api/v1/users/me */
   me: () => api.get<MeResponse>("/api/v1/users/me"),
+
+  /** PUT /api/v1/users/me — 닉네임 · 프로필 이미지 수정 (둘 다 선택적) */
+  update: (payload: { nickname?: string; profile_image_url?: string }) =>
+    api.put<MeResponse>("/api/v1/users/me", payload),
 
   /** GET /api/v1/users/me/companion-summary */
   companionSummary: () => api.get<CompanionSummary>("/api/v1/users/me/companion-summary"),
@@ -130,6 +136,28 @@ export const plannerApi = {
       "/api/v1/planner/generate",
       { prompt, categories, lang },
       { timeoutMs: 180_000 }, // RAG + GPT 생성이라 넉넉히
+    ),
+
+  /**
+   * ─── 멀티턴 대화 ───
+   * generate는 단발 생성용으로 남겨 두고, 대화형 화면은 아래 세션 API를 쓴다.
+   * 비로그인도 호출 가능하지만 서버가 IP당 요청 수와 세션당 턴·토큰 상한을 건다.
+   */
+
+  /** POST /api/v1/planner/sessions → 새 대화 시작 */
+  createSession: (lang?: string) =>
+    api.post<SessionHistory>("/api/v1/planner/sessions", { lang }),
+
+  /** GET /api/v1/planner/sessions/{id} → 대화 + 현재 일정 복구 */
+  getSession: (sessionId: string) =>
+    api.get<SessionHistory>(`/api/v1/planner/sessions/${sessionId}`),
+
+  /** POST /api/v1/planner/sessions/{id}/messages → 한 턴 진행 */
+  sendMessage: (sessionId: string, text: string, categories: string[], lang?: string) =>
+    api.post<SessionTurn>(
+      `/api/v1/planner/sessions/${sessionId}/messages`,
+      { text, categories, lang },
+      { timeoutMs: 180_000 }, // 새 일정 생성 턴은 RAG + LLM이라 넉넉히
     ),
 
   /** POST /api/v1/planner/save → 저장된 itineraryId */
@@ -276,6 +304,9 @@ export const companionApi = {
 export const guideApi = {
   /** GET /api/v1/guide/products — 게시된 상품 전체 */
   products: () => api.get<GuideProduct[]>("/api/v1/guide/products"),
+
+  /** GET /api/v1/guide/products/{serviceId} — 게시된 상품 단건 조회 */
+  detail: (serviceId: string) => api.get<GuideProduct>(`/api/v1/guide/products/${serviceId}`),
 
   /** GET /api/v1/guide/my-products — 내 상품(미게시 포함) */
   myProducts: () => api.get<GuideProduct[]>("/api/v1/guide/my-products"),

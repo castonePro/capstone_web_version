@@ -11,7 +11,7 @@
  *
  * NEXT_PUBLIC_GOOGLE_MAPS_API_KEY가 없으면 지도 대신 안내 문구를 보여준다(에러로 죽지 않음).
  */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { APIProvider, Map, Marker, useMap } from "@vis.gl/react-google-maps";
 import { useTranslations } from "next-intl";
 import { useFormat } from "@/lib/i18n/useFormat";
@@ -19,6 +19,12 @@ import { Chip, EmptyState } from "@/components/ui";
 import { routeApi } from "@/lib/api/endpoints";
 import { ApiError } from "@/lib/api/client";
 import { MapErrorBoundary } from "@/components/maps/MapErrorBoundary";
+import {
+  ARRIVE_RADIUS_M,
+  LiveLocationLayer,
+  estimateEtaSec,
+  useGeolocation,
+} from "@/components/maps/LiveLocation";
 
 const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
@@ -246,6 +252,55 @@ export function TripRouteMap({ points: rawPoints }: { points: TripRoutePoint[] }
   // 좌표가 없거나 범위를 벗어난 장소는 지도에 그릴 수 없으므로 미리 걸러낸다.
   const points = useMemo(() => rawPoints.filter((p) => isValidPoint(p)), [rawPoints]);
 
+  // ─── 실시간 위치 (켰을 때만 동작하는 부가 기능) ───
+  const [live, setLive] = useState(false);
+  const [follow, setFollow] = useState(true);
+  const [nextIdx, setNextIdx] = useState(0);
+  const { position, error: geoError } = useGeolocation(live);
+  // 첫 위치를 받았을 때 "다음 장소"를 가장 가까운 장소로 잡기 위한 플래그
+  const pickedInitialRef = useRef(false);
+  // 현재 목표 장소에 한 번 도착했는지 — 도착 후 그 장소를 벗어나면 다음 장소로 넘긴다
+  const reachedRef = useRef(false);
+
+  // 날짜(코스)가 바뀌거나 내 위치를 다시 켜면 다음 장소를 새로 고른다
+  useEffect(() => {
+    pickedInitialRef.current = false;
+    reachedRef.current = false;
+    setNextIdx(0);
+  }, [points, live]);
+
+  useEffect(() => {
+    if (!position || points.length === 0) return;
+    if (!pickedInitialRef.current) {
+      let best = 0;
+      let bestD = Infinity;
+      points.forEach((p, i) => {
+        const d = haversineMeters(position, p);
+        if (d < bestD) {
+          bestD = d;
+          best = i;
+        }
+      });
+      pickedInitialRef.current = true;
+      setNextIdx(best);
+      return;
+    }
+  }, [position, points]);
+
+  // 도착 판정: 목표 장소 반경 안에 들어오면 "도착", 그 뒤 반경을 벗어나면 다음 순서로 넘긴다
+  // (마지막 장소는 그대로 둔다). 첫 위치에서 가장 가까운 장소를 고른 직후에도 같은 규칙이 적용된다.
+  useEffect(() => {
+    if (!position || !pickedInitialRef.current || points.length === 0) return;
+    const idx = Math.min(nextIdx, points.length - 1);
+    const inside = haversineMeters(position, points[idx]) <= ARRIVE_RADIUS_M;
+    if (inside) {
+      reachedRef.current = true;
+    } else if (reachedRef.current && idx < points.length - 1) {
+      reachedRef.current = false;
+      setNextIdx(idx + 1);
+    }
+  }, [position, points, nextIdx]);
+
   if (points.length === 0) return null;
 
   if (!API_KEY) {
@@ -263,6 +318,12 @@ export function TripRouteMap({ points: rawPoints }: { points: TripRoutePoint[] }
         ? `${(summary.distanceMeters / 1000).toFixed(1)}km`
         : `${Math.round(summary.distanceMeters)}m`;
   const durationLabel = summary == null ? null : f.minutes(Math.round(summary.durationSec / 60));
+
+  const formatDistance = (m: number) => (m >= 1000 ? `${(m / 1000).toFixed(1)}km` : `${Math.round(m)}m`);
+  const safeNextIdx = Math.min(nextIdx, points.length - 1);
+  const nextPoint = points[safeNextIdx];
+  const nextDistance = position ? haversineMeters(position, nextPoint) : null;
+  const arrived = nextDistance != null && nextDistance <= ARRIVE_RADIUS_M;
 
   return (
     <div className="mb-4">
@@ -285,6 +346,72 @@ export function TripRouteMap({ points: rawPoints }: { points: TripRoutePoint[] }
           </p>
         </div>
       )}
+      <div className="mb-2 flex flex-wrap items-center gap-1.5">
+        <Chip active={live} onClick={() => setLive((v) => !v)}>
+          {t("myLocation")}
+        </Chip>
+        {live && (
+          <Chip active={follow} onClick={() => setFollow((v) => !v)}>
+            {t("follow")}
+          </Chip>
+        )}
+      </div>
+      {live && (
+        <div className="mb-2 rounded-[12px] border border-line bg-card px-3 py-2.5 text-[13px]">
+          {geoError ? (
+            <p className="text-ink2">{t(`geo.${geoError}`)}</p>
+          ) : !position ? (
+            <p className="text-muted">{t("locating")}</p>
+          ) : (
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-[11px] text-muted">
+                  {t("nextPlace")} · {safeNextIdx + 1}/{points.length}
+                </p>
+                <p className="truncate font-semibold text-ink">{nextPoint.label}</p>
+                <p className="mt-0.5 text-ink2">
+                  {arrived
+                    ? t("arrived")
+                    : t("remaining", {
+                        distance: formatDistance(nextDistance ?? 0),
+                        time: f.minutes(Math.max(1, Math.round(estimateEtaSec(nextDistance ?? 0, mode) / 60))),
+                        mode: mode === "WALK" ? t("walk") : t("drive"),
+                      })}
+                  {!arrived && <span className="text-muted"> ({t("estimated")})</span>}
+                </p>
+              </div>
+              {points.length > 1 && (
+                <div className="flex shrink-0 gap-1">
+                  <button
+                    type="button"
+                    aria-label={t("prevPlace")}
+                    disabled={safeNextIdx === 0}
+                    onClick={() => {
+                      reachedRef.current = false;
+                      setNextIdx(Math.max(0, safeNextIdx - 1));
+                    }}
+                    className="grid h-8 w-8 place-items-center rounded-full border border-line text-ink2 disabled:opacity-40"
+                  >
+                    ‹
+                  </button>
+                  <button
+                    type="button"
+                    aria-label={t("nextPlaceBtn")}
+                    disabled={safeNextIdx >= points.length - 1}
+                    onClick={() => {
+                      reachedRef.current = false;
+                      setNextIdx(Math.min(points.length - 1, safeNextIdx + 1));
+                    }}
+                    className="grid h-8 w-8 place-items-center rounded-full border border-line text-ink2 disabled:opacity-40"
+                  >
+                    ›
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
       <div className="overflow-hidden rounded-[12px] border border-line" style={{ height: 280 }}>
         <MapErrorBoundary
           resetKey={points}
@@ -301,6 +428,9 @@ export function TripRouteMap({ points: rawPoints }: { points: TripRoutePoint[] }
                 <Marker key={p.id} position={{ lat: p.lat, lng: p.lng }} label={String(i + 1)} title={p.label} />
               ))}
               <RouteController points={points} mode={mode} onSummary={setSummary} onError={setError} />
+              {live && (
+                <LiveLocationLayer position={position} follow={follow} onUserDrag={() => setFollow(false)} />
+              )}
             </Map>
           </APIProvider>
         </MapErrorBoundary>

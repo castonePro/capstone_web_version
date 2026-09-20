@@ -82,15 +82,6 @@ export default function PlaceDetailPage({ params }: { params: Promise<{ placeId:
           </div>
 
           <div className="mt-4 flex flex-wrap gap-2">
-            <a
-              href={`https://map.kakao.com/link/search/${encodeURIComponent(data.title ?? "")}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Button variant="outline" size="sm">
-                {t("openMap")}
-              </Button>
-            </a>
             <Link href="/ai">
               <Button size="sm">{t("planWithThis")}</Button>
             </Link>

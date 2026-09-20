@@ -250,7 +250,6 @@
     "noName": "Tanpa nama",
     "noAddress": "Alamat tidak tersedia",
     "backToList": "Daftar destinasi",
-    "openMap": "Lihat di peta",
     "planWithThis": "Buat rencana dari tempat ini",
     "overview": "Tentang"
   },
@@ -273,8 +272,7 @@
     "dayCount": "{count} hari",
     "courseCount": "{count} tempat",
     "placeInfo": "Info tempat",
-    "hours": "Buka {value}",
-    "openMap": "Lihat di peta"
+    "hours": "Buka {value}"
   },
   "maps": {
     "noApiKey": "Diperlukan kunci API Peta untuk menampilkan peta ini",
@@ -283,7 +281,21 @@
     "routeError": "Gagal memuat rute",
     "calculating": "Menghitung rute…",
     "estimated": "perkiraan",
-    "mapError": "Terjadi masalah saat menampilkan peta"
+    "mapError": "Terjadi masalah saat menampilkan peta",
+    "myLocation": "Lokasi saya",
+    "follow": "Ikuti",
+    "locating": "Mencari lokasi Anda…",
+    "nextPlace": "Tujuan berikutnya",
+    "remaining": "Sisa {distance} · sekitar {time} ({mode})",
+    "arrived": "Anda sudah sampai!",
+    "prevPlace": "Tujuan sebelumnya",
+    "nextPlaceBtn": "Tujuan berikutnya",
+    "geo": {
+      "denied": "Izin lokasi ditolak. Izinkan akses lokasi di pengaturan browser Anda.",
+      "unavailable": "Tidak dapat menentukan lokasi Anda. Coba lagi sebentar lagi.",
+      "insecure": "Lokasi hanya tersedia melalui koneksi aman (HTTPS).",
+      "unsupported": "Browser ini tidak mendukung fitur lokasi."
+    }
   },
   "ai": {
     "title": "AI Perencana Perjalanan",
@@ -295,6 +307,10 @@
     "tryAsking": "Coba tanyakan ini",
     "inputPlaceholder": "Perjalanan seperti apa yang Anda mau? (mis. 3 hari, pemandangan laut dan kuliner)",
     "saveToTrips": "Simpan ke Perjalanan Saya",
+    "newChat": "Obrolan baru",
+    "updated": "Diperbarui",
+    "working": "Menerapkan perubahan Anda…",
+    "restoring": "Memulihkan percakapan Anda…",
     "interests": {
       "leisure": "Rekreasi",
       "food": "Kuliner",
@@ -502,7 +518,9 @@
     "rating": "Penilaian",
     "reviewContent": "Isi ulasan",
     "reviewPlaceholder": "Bagaimana pengalaman Anda bersama pemandu ini?",
-    "reviewPosted": "Ulasan Anda sudah terbit."
+    "reviewPosted": "Ulasan Anda sudah terbit.",
+    "priceNote": "Harga acuan · jumlah akhir disepakati dengan pemandu",
+    "inquireNotice": "Pemesanan dan pembayaran tidak dilakukan di aplikasi. Silakan atur jadwal dan harga langsung dengan pemandu lewat chat."
   },
   "guideProducts": {
     "title": "Kelola Tur",
@@ -754,13 +772,34 @@
     "saveSuccess": "Tersimpan",
     "nicknamePlaceholder": "Masukkan nama panggilan",
     "menu": {
-      "myCompanions": { "label": "Trip Saya", "desc": "Trip yang saya selenggarakan · yang saya ikuti" },
-      "myBids": { "label": "Penawaran Saya", "desc": "Rencana yang ditawarkan ke pemandu dan penawarannya" },
-      "myTrips": { "label": "Perjalanan Saya", "desc": "Rencana tersimpan" },
-      "payments": { "label": "Pembayaran", "desc": "Biaya · deposit · promosi" },
-      "reports": { "label": "Laporan Saya", "desc": "Laporan yang dikirim dan statusnya" },
-      "guideConversion": { "label": "Menjadi pemandu", "desc": "Calon pemandu · pengajuan" },
-      "recent": { "label": "Baru dilihat", "desc": "Tersimpan di peramban ini" }
+      "myCompanions": {
+        "label": "Trip Saya",
+        "desc": "Trip yang saya selenggarakan · yang saya ikuti"
+      },
+      "myBids": {
+        "label": "Penawaran Saya",
+        "desc": "Rencana yang ditawarkan ke pemandu dan penawarannya"
+      },
+      "myTrips": {
+        "label": "Perjalanan Saya",
+        "desc": "Rencana tersimpan"
+      },
+      "payments": {
+        "label": "Pembayaran",
+        "desc": "Biaya · deposit · promosi"
+      },
+      "reports": {
+        "label": "Laporan Saya",
+        "desc": "Laporan yang dikirim dan statusnya"
+      },
+      "guideConversion": {
+        "label": "Menjadi pemandu",
+        "desc": "Calon pemandu · pengajuan"
+      },
+      "recent": {
+        "label": "Baru dilihat",
+        "desc": "Tersimpan di peramban ini"
+      }
     }
   },
   "report": {

@@ -172,9 +172,35 @@ CREATE INDEX IF NOT EXISTS idx_guider_info_specialties    ON guider_info USING G
 
 ### 3.3 `travel_places` — 부산 관광지 마스터 (TourAPI 적재)
 
+> ⚠️ **2026-09 정정**: 이 섹션은 원래 PostgreSQL 기준(`POINT` 타입)으로 작성되어 있었는데, 실제 운영 DB는 Oracle로 이미 마이그레이션되어 있고(커밋 `0b4b4b2`) `location` 컬럼은 **Oracle Spatial `SDO_GEOMETRY`** 타입이다. `PlannerService.java`(49~52번 줄)가 `p.location.SDO_POINT.X AS mapx`, `p.location.SDO_POINT.Y AS mapy`로 실제 조회하는 걸 코드로 직접 확인했다. 아래는 Oracle 기준으로 고친 DDL이다 (PostgreSQL 버전은 기록용으로 하단에 남겨둔다).
+
+```sql
+-- Oracle 기준 (실제 운영 DB)
+CREATE TABLE travel_places (
+    place_id     NUMBER PRIMARY KEY,      -- TourAPI contentid
+    title        VARCHAR2(255),
+    addr1        VARCHAR2(255),
+    first_image  CLOB,
+    first_image2 CLOB,
+    cat1         VARCHAR2(50),
+    cat2         VARCHAR2(50),
+    cat3         VARCHAR2(50),
+    location     SDO_GEOMETRY             -- SDO_POINT.X = 경도(mapx), SDO_POINT.Y = 위도(mapy)
+);
+
+CREATE INDEX idx_travel_places_cat1  ON travel_places(cat1);
+CREATE INDEX idx_travel_places_title ON travel_places(title);
+
+-- SDO_GEOMETRY 컬럼을 쓰려면 USER_SDO_GEOM_METADATA 등록 + 공간 인덱스 생성이 별도로 필요하다.
+-- (INSERT INTO USER_SDO_GEOM_METADATA ... / CREATE INDEX ... INDEXTYPE IS MDSYS.SPATIAL_INDEX)
+```
+
+<details>
+<summary>PostgreSQL 버전 (마이그레이션 이전, 기록용)</summary>
+
 ```sql
 CREATE TABLE IF NOT EXISTS travel_places (
-    place_id     INTEGER PRIMARY KEY,   -- TourAPI contentid
+    place_id     INTEGER PRIMARY KEY,
     title        VARCHAR(255),
     addr1        VARCHAR(255),
     first_image  TEXT,
@@ -182,14 +208,13 @@ CREATE TABLE IF NOT EXISTS travel_places (
     cat1         VARCHAR(50),
     cat2         VARCHAR(50),
     cat3         VARCHAR(50),
-    location     POINT                  -- ⚠️ location[0]=mapx(경도), location[1]=mapy(위도)
+    location     POINT
 );
-
-CREATE INDEX IF NOT EXISTS idx_travel_places_cat1  ON travel_places(cat1);
-CREATE INDEX IF NOT EXISTS idx_travel_places_title ON travel_places(title);
 ```
 
-> `PlannerService`가 `p.location[0]`, `p.location[1]`로 접근한다. PostgreSQL 배열은 1-based라 `[0]`이 NULL이 되므로, **0-based 첨자를 갖는 `POINT` 타입**으로 확정했다. (배열로 만들려면 `DOUBLE PRECISION[]` + 쿼리를 `[1]`,`[2]`로 수정해야 한다.)
+</details>
+
+> **API 노출 현황 (2026-09 추가)**: `TravelPlaceService.getPlaceDetail()`(`GET /api/v1/places/{placeId}`)이 이제 `latitude`/`longitude`를 `TravelPlaceDetailDto`에 실어 응답한다. `/recommend`, `/popular` 목록 API는 아직 `TravelPlace` 엔티티를 그대로 반환하고 있어 좌표가 없다 — 지도에 목록을 한 번에 찍으려면 이 두 엔드포인트도 DTO로 바꾸고 좌표를 추가해야 한다.
 
 ### 3.4 `travel_descriptions` — 장소 상세 설명 ⚠️추정
 
@@ -211,6 +236,8 @@ CREATE TABLE IF NOT EXISTS travel_fees (
 ```
 
 ### 3.6 `travel_vectors` — RAG 임베딩 ⚠️추정
+
+> ⚠️ **2026-09 정정 필요**: 아래는 PostgreSQL `pgvector`(`VECTOR(768)`, `<=>` 코사인 연산자) 기준인데, DB가 Oracle로 마이그레이션되면서 이 테이블이 실제로 어떻게 바뀌었는지 코드에서 확인하지 못했다 (Oracle 23ai `VECTOR` 타입을 쓰거나, 별도 벡터 스토어로 분리됐을 가능성). `EMBEDDING_SERVER_URL`(기본 `http://localhost:8000`)로 분리된 임베딩 서버가 이 테이블에 어떻게 쓰고 읽는지 확인 후 갱신 필요 — Part 1 문서의 12번 항목 참고.
 
 ```sql
 -- 임베딩 모델: intfloat/multilingual-e5-base → 768차원 (main.py)

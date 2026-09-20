@@ -250,7 +250,6 @@
     "noName": "Unnamed",
     "noAddress": "No address available",
     "backToList": "All places",
-    "openMap": "Open in maps",
     "planWithThis": "Plan a trip around this",
     "overview": "About"
   },
@@ -273,8 +272,7 @@
     "dayCount": "{count, plural, one {# day} other {# days}}",
     "courseCount": "{count, plural, one {# stop} other {# stops}}",
     "placeInfo": "Place info",
-    "hours": "Open {value}",
-    "openMap": "Open in maps"
+    "hours": "Open {value}"
   },
   "maps": {
     "noApiKey": "A Maps API key is required to show this map",
@@ -283,7 +281,21 @@
     "routeError": "Couldn't load the route",
     "calculating": "Calculating route…",
     "estimated": "estimated",
-    "mapError": "Something went wrong while showing the map"
+    "mapError": "Something went wrong while showing the map",
+    "myLocation": "My location",
+    "follow": "Follow",
+    "locating": "Finding your location…",
+    "nextPlace": "Next stop",
+    "remaining": "{distance} left · about {time} by {mode}",
+    "arrived": "You've arrived!",
+    "prevPlace": "Previous stop",
+    "nextPlaceBtn": "Next stop",
+    "geo": {
+      "denied": "Location permission was denied. Please allow location access in your browser settings.",
+      "unavailable": "Couldn't determine your location. Please try again shortly.",
+      "insecure": "Your location is only available over a secure (HTTPS) connection.",
+      "unsupported": "This browser doesn't support location."
+    }
   },
   "ai": {
     "title": "AI Trip Planner",
@@ -295,6 +307,10 @@
     "tryAsking": "Try asking",
     "inputPlaceholder": "What kind of trip do you want? (e.g. 3 days, seaside views and great food)",
     "saveToTrips": "Save to My Trips",
+    "newChat": "New chat",
+    "updated": "Updated",
+    "working": "Applying your changes…",
+    "restoring": "Restoring your conversation…",
     "interests": {
       "leisure": "Leisure",
       "food": "Food",
@@ -502,7 +518,9 @@
     "rating": "Rating",
     "reviewContent": "Your review",
     "reviewPlaceholder": "How was your time with this guide?",
-    "reviewPosted": "Your review has been posted."
+    "reviewPosted": "Your review has been posted.",
+    "priceNote": "Reference price · final amount agreed with the guide",
+    "inquireNotice": "Bookings and payments aren't made in the app. Please arrange the schedule and price directly with the guide via chat."
   },
   "guideProducts": {
     "title": "My Tours",
@@ -754,13 +772,34 @@
     "saveSuccess": "Saved",
     "nicknamePlaceholder": "Enter a nickname",
     "menu": {
-      "myCompanions": { "label": "My Companions", "desc": "Trips you host and trips you've joined" },
-      "myBids": { "label": "My Requests", "desc": "Itineraries you offered to guides, and their bids" },
-      "myTrips": { "label": "My Trips", "desc": "Saved itineraries" },
-      "payments": { "label": "Payments", "desc": "Fees · deposits · boosts" },
-      "reports": { "label": "My Reports", "desc": "Reports you filed and their status" },
-      "guideConversion": { "label": "Become a guide", "desc": "Candidate status and application" },
-      "recent": { "label": "Recently viewed", "desc": "Stored in this browser" }
+      "myCompanions": {
+        "label": "My Companions",
+        "desc": "Trips you host and trips you've joined"
+      },
+      "myBids": {
+        "label": "My Requests",
+        "desc": "Itineraries you offered to guides, and their bids"
+      },
+      "myTrips": {
+        "label": "My Trips",
+        "desc": "Saved itineraries"
+      },
+      "payments": {
+        "label": "Payments",
+        "desc": "Fees · deposits · boosts"
+      },
+      "reports": {
+        "label": "My Reports",
+        "desc": "Reports you filed and their status"
+      },
+      "guideConversion": {
+        "label": "Become a guide",
+        "desc": "Candidate status and application"
+      },
+      "recent": {
+        "label": "Recently viewed",
+        "desc": "Stored in this browser"
+      }
     }
   },
   "report": {

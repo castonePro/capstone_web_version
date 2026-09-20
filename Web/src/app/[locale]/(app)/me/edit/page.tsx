@@ -2,12 +2,15 @@
 
 /**
  * Flutter features/profile/ui/profile_edit_page.dart 대응.
- * 백엔드에 프로필 수정 API(PUT /users/me)가 아직 없어, 현재는 조회 전용 화면이다.
+ * PUT /api/v1/users/me 가 추가되어(2026-09) 닉네임을 수정할 수 있다.
+ * 이메일 · 나이대 · 성별은 본인 인증/가입 시 정해지는 값이라 여기서는 계속 조회 전용이다.
  */
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { useFormat } from "@/lib/i18n/useFormat";
+import { userApi } from "@/lib/api/endpoints";
 import { Badge, Button, Card, Field, Input, LoadingBlock, PageHeader } from "@/components/ui";
 import { IconBack } from "@/components/layout/icons";
 
@@ -15,8 +18,31 @@ export default function ProfileEditPage() {
   const t = useTranslations("me");
   const c = useTranslations("common");
   const f = useFormat();
-  const { me } = useAuth();
+  const { me, fetchMe } = useAuth();
+
+  const [nickname, setNickname] = useState(me?.nickname ?? "");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   if (!me) return <LoadingBlock />;
+
+  const dirty = nickname.trim() !== me.nickname && nickname.trim().length > 0;
+
+  async function handleSave() {
+    setSaving(true);
+    setError(null);
+    setSaved(false);
+    try {
+      await userApi.update({ nickname: nickname.trim() });
+      await fetchMe();
+      setSaved(true);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <div className="max-w-xl">
@@ -32,7 +58,15 @@ export default function ProfileEditPage() {
 
       <Card className="space-y-4">
         <Field label={t("nickname")}>
-          <Input value={me.nickname} readOnly disabled />
+          <Input
+            value={nickname}
+            placeholder={t("nicknamePlaceholder")}
+            onChange={(e) => {
+              setNickname(e.target.value);
+              setSaved(false);
+            }}
+            maxLength={100}
+          />
         </Field>
         <Field label={t("email")}>
           <Input value={me.email} readOnly disabled />
@@ -60,11 +94,18 @@ export default function ProfileEditPage() {
           )}
         </div>
 
-        <p className="rounded-[12px] bg-coral-50 px-3.5 py-3 text-[12px] leading-relaxed text-ink2">
-          {t("noEditApiNotice")}
-          <br />
-          <code className="text-[11px]">PUT /api/v1/users/me</code>
-        </p>
+        {error && (
+          <p className="rounded-[12px] bg-coral-50 px-3.5 py-3 text-[12px] leading-relaxed text-ink2">
+            {error}
+          </p>
+        )}
+
+        <div className="flex items-center gap-3">
+          <Button onClick={handleSave} disabled={!dirty || saving} loading={saving}>
+            {t("saveCta")}
+          </Button>
+          {saved && <span className="text-[12px] text-ink2">{t("saveSuccess")}</span>}
+        </div>
       </Card>
     </div>
   );

@@ -10,20 +10,13 @@ import { useAuth } from "@/lib/auth/AuthProvider";
 import { useFormat } from "@/lib/i18n/useFormat";
 import { Badge, Button, Card, Chip, EmptyState, SectionTitle, Spinner } from "@/components/ui";
 import { CompanionCard, PlaceCard } from "@/components/cards";
-import {
-  IconCompass,
-  IconMapPin,
-  IconSparkle,
-  IconUsers,
-  IconLuggage,
-} from "@/components/layout/icons";
 
 const QUICK_MENU = [
-  { href: "/ai", key: "aiPlanner", icon: IconSparkle },
-  { href: "/companions", key: "companions", icon: IconUsers },
-  { href: "/guides", key: "guides", icon: IconCompass },
-  { href: "/places", key: "places", icon: IconMapPin },
-  { href: "/trips", key: "trips", icon: IconLuggage },
+  { href: "/ai", key: "aiPlanner", icon: "/images/home/ai-planner.png" },
+  { href: "/companions", key: "companions", icon: "/images/home/companions.png" },
+  { href: "/guides", key: "guides", icon: "/images/home/guides.png" },
+  { href: "/places", key: "places", icon: "/images/home/places.png" },
+  { href: "/trips", key: "trips", icon: "/images/home/trips.png" },
 ] as const;
 
 export default function HomePage() {
@@ -82,15 +75,13 @@ export default function HomePage() {
       {/* ─── 퀵메뉴 ─── */}
       <section>
         <div className="grid grid-cols-5 gap-2 sm:gap-4">
-          {QUICK_MENU.map(({ href, key, icon: Icon }) => (
+          {QUICK_MENU.map(({ href, key, icon }) => (
             <Link
               key={href}
               href={href}
               className="flex flex-col items-center gap-2 rounded-[12px] border border-line bg-card px-2 py-4 transition-colors hover:border-accent"
             >
-              <span className="grid h-10 w-10 place-items-center rounded-full bg-sand text-ink">
-                <Icon width={20} height={20} />
-              </span>
+              <img src={icon} alt="" aria-hidden className="h-12 w-12 object-contain sm:h-14 sm:w-14" />
               <span className="text-center text-[11px] leading-tight font-medium text-ink2 sm:text-[13px]">
                 {nav(key)}
               </span>

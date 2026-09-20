@@ -2,7 +2,7 @@
 
 /**
  * Flutter features/guide/ui/guide_detail_page.dart 대응.
- * 백엔드에 단건 조회(GET /guide/products/{id})가 없어 목록에서 찾아 쓴다 — 앱과 동일한 방식.
+ * GET /api/v1/guide/products/{serviceId} 단건 조회 (2026-09 추가 — 이전엔 목록에서 찾아 썼음).
  */
 import { use, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -36,8 +36,8 @@ export default function GuideDetailPage({ params }: { params: Promise<{ serviceI
   const c = useTranslations("common");
   const f = useFormat();
 
-  const products = useAsync(() => guideApi.products(), []);
-  const product = products.data?.find((p) => p.serviceId === serviceId) ?? null;
+  const productQuery = useAsync(() => guideApi.detail(serviceId), [serviceId]);
+  const product = productQuery.data ?? null;
 
   const reviews = useAsync(
     () => (product ? reviewApi.byGuide(product.guideUserId) : Promise.resolve([])),
@@ -99,8 +99,8 @@ export default function GuideDetailPage({ params }: { params: Promise<{ serviceI
     }
   }
 
-  if (products.loading) return <LoadingBlock />;
-  if (products.error) return <ErrorState error={products.error} onRetry={products.reload} />;
+  if (productQuery.loading) return <LoadingBlock />;
+  if (productQuery.error) return <ErrorState error={productQuery.error} onRetry={productQuery.reload} />;
   if (!product) {
     return (
       <EmptyState
@@ -245,6 +245,7 @@ export default function GuideDetailPage({ params }: { params: Promise<{ serviceI
           <Card>
             <p className="text-[13px] text-muted">{t("pricePerPerson")}</p>
             <p className="mt-1 text-2xl font-semibold">{f.price(product.pricePerPerson)}</p>
+            <p className="mt-0.5 text-[11px] text-muted">{t("priceNote")}</p>
 
             <dl className="mt-4 space-y-2 text-[13px]">
               <div className="flex justify-between">
@@ -266,6 +267,7 @@ export default function GuideDetailPage({ params }: { params: Promise<{ serviceI
             <Button className="mt-4 w-full" loading={busy} onClick={() => void inquire()}>
               {t("inquire")}
             </Button>
+            <p className="mt-2 text-[11px] leading-relaxed text-muted">{t("inquireNotice")}</p>
           </Card>
 
           {product.relatedMaterials && product.relatedMaterials.length > 0 && (

@@ -250,7 +250,6 @@
     "noName": "이름 없음",
     "noAddress": "주소 정보 없음",
     "backToList": "여행지 목록",
-    "openMap": "지도에서 보기",
     "planWithThis": "이 장소로 일정 만들기",
     "overview": "소개"
   },
@@ -273,8 +272,7 @@
     "dayCount": "{count}일",
     "courseCount": "{count}개 코스",
     "placeInfo": "장소 정보",
-    "hours": "운영 {value}",
-    "openMap": "지도에서 보기"
+    "hours": "운영 {value}"
   },
   "maps": {
     "noApiKey": "지도를 사용하려면 API 키가 필요합니다",
@@ -283,7 +281,21 @@
     "routeError": "경로를 불러오지 못했습니다",
     "calculating": "경로 계산 중…",
     "estimated": "추정",
-    "mapError": "지도를 표시하는 중 문제가 발생했습니다"
+    "mapError": "지도를 표시하는 중 문제가 발생했습니다",
+    "myLocation": "내 위치",
+    "follow": "따라가기",
+    "locating": "현재 위치를 찾는 중…",
+    "nextPlace": "다음 장소",
+    "remaining": "{distance} 남음 · {mode} 약 {time}",
+    "arrived": "도착했어요!",
+    "prevPlace": "이전 장소",
+    "nextPlaceBtn": "다음 장소로",
+    "geo": {
+      "denied": "위치 권한이 거부되었습니다. 브라우저 설정에서 위치 접근을 허용해 주세요.",
+      "unavailable": "현재 위치를 확인할 수 없습니다. 잠시 후 다시 시도해 주세요.",
+      "insecure": "보안 연결(HTTPS)에서만 내 위치를 사용할 수 있습니다.",
+      "unsupported": "이 브라우저는 위치 기능을 지원하지 않습니다."
+    }
   },
   "ai": {
     "title": "AI 여행 플래너",
@@ -295,6 +307,10 @@
     "tryAsking": "이렇게 물어보세요",
     "inputPlaceholder": "어떤 여행을 원하시나요? (예: 2박3일 바다 보면서 맛집 위주로)",
     "saveToTrips": "내 여행에 저장",
+    "newChat": "새 대화",
+    "updated": "수정됨",
+    "working": "요청을 반영하고 있어요…",
+    "restoring": "이전 대화를 불러오는 중…",
     "interests": {
       "leisure": "레저",
       "food": "맛집",
@@ -502,7 +518,9 @@
     "rating": "평점",
     "reviewContent": "내용",
     "reviewPlaceholder": "가이드와 함께한 경험은 어땠나요?",
-    "reviewPosted": "리뷰를 등록했습니다."
+    "reviewPosted": "리뷰를 등록했습니다.",
+    "priceNote": "참고 가격 · 최종 금액은 가이드와 협의",
+    "inquireNotice": "앱에서는 예약·결제가 이루어지지 않아요. 일정과 금액은 가이드와 채팅으로 직접 협의해 주세요."
   },
   "guideProducts": {
     "title": "상품 관리",
@@ -754,13 +772,34 @@
     "saveSuccess": "저장되었습니다",
     "nicknamePlaceholder": "닉네임을 입력하세요",
     "menu": {
-      "myCompanions": { "label": "내 동행", "desc": "내가 연 방 · 참여한 동행" },
-      "myBids": { "label": "내 제안 현황", "desc": "가이드에게 올린 일정과 지원 가이드" },
-      "myTrips": { "label": "내 여행", "desc": "저장한 일정" },
-      "payments": { "label": "결제 내역", "desc": "수수료 · 보증금 · 부스트" },
-      "reports": { "label": "내 신고 내역", "desc": "접수한 신고와 처리 상태" },
-      "guideConversion": { "label": "가이드 전환", "desc": "예비 가이드 · 정식 전환 신청" },
-      "recent": { "label": "최근 본", "desc": "이 브라우저에 저장된 기록" }
+      "myCompanions": {
+        "label": "내 동행",
+        "desc": "내가 연 방 · 참여한 동행"
+      },
+      "myBids": {
+        "label": "내 제안 현황",
+        "desc": "가이드에게 올린 일정과 지원 가이드"
+      },
+      "myTrips": {
+        "label": "내 여행",
+        "desc": "저장한 일정"
+      },
+      "payments": {
+        "label": "결제 내역",
+        "desc": "수수료 · 보증금 · 부스트"
+      },
+      "reports": {
+        "label": "내 신고 내역",
+        "desc": "접수한 신고와 처리 상태"
+      },
+      "guideConversion": {
+        "label": "가이드 전환",
+        "desc": "예비 가이드 · 정식 전환 신청"
+      },
+      "recent": {
+        "label": "최근 본",
+        "desc": "이 브라우저에 저장된 기록"
+      }
     }
   },
   "report": {

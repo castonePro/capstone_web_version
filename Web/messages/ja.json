@@ -250,7 +250,6 @@
     "noName": "名称なし",
     "noAddress": "住所情報なし",
     "backToList": "観光地一覧",
-    "openMap": "地図で見る",
     "planWithThis": "このスポットで旅程をつくる",
     "overview": "紹介"
   },
@@ -273,8 +272,7 @@
     "dayCount": "{count}日間",
     "courseCount": "{count}スポット",
     "placeInfo": "スポット情報",
-    "hours": "営業 {value}",
-    "openMap": "地図で見る"
+    "hours": "営業 {value}"
   },
   "maps": {
     "noApiKey": "地図を表示するにはAPIキーが必要です",
@@ -283,7 +281,21 @@
     "routeError": "経路を読み込めませんでした",
     "calculating": "経路を計算中…",
     "estimated": "推定",
-    "mapError": "地図の表示中に問題が発生しました"
+    "mapError": "地図の表示中に問題が発生しました",
+    "myLocation": "現在地",
+    "follow": "追従",
+    "locating": "現在地を取得中…",
+    "nextPlace": "次の場所",
+    "remaining": "残り {distance} · {mode}で約 {time}",
+    "arrived": "到着しました！",
+    "prevPlace": "前の場所",
+    "nextPlaceBtn": "次の場所へ",
+    "geo": {
+      "denied": "位置情報の許可が拒否されました。ブラウザの設定で位置情報へのアクセスを許可してください。",
+      "unavailable": "現在地を取得できません。しばらくしてからもう一度お試しください。",
+      "insecure": "現在地は安全な接続(HTTPS)でのみ利用できます。",
+      "unsupported": "このブラウザは位置情報に対応していません。"
+    }
   },
   "ai": {
     "title": "AI旅行プランナー",
@@ -295,6 +307,10 @@
     "tryAsking": "こんなふうに聞いてみてください",
     "inputPlaceholder": "どんな旅がしたいですか？（例：2泊3日、海を見ながらグルメ中心で）",
     "saveToTrips": "マイ旅程に保存",
+    "newChat": "新しい会話",
+    "updated": "変更済み",
+    "working": "リクエストを反映しています…",
+    "restoring": "前回の会話を読み込んでいます…",
     "interests": {
       "leisure": "レジャー",
       "food": "グルメ",
@@ -502,7 +518,9 @@
     "rating": "評価",
     "reviewContent": "内容",
     "reviewPlaceholder": "ガイドとの時間はいかがでしたか？",
-    "reviewPosted": "レビューを投稿しました。"
+    "reviewPosted": "レビューを投稿しました。",
+    "priceNote": "参考料金 · 最終金額はガイドと相談",
+    "inquireNotice": "アプリ内では予約・決済は行われません。日程と料金はチャットでガイドと直接ご相談ください。"
   },
   "guideProducts": {
     "title": "ツアー管理",
@@ -754,13 +772,34 @@
     "saveSuccess": "保存しました",
     "nicknamePlaceholder": "ニックネームを入力してください",
     "menu": {
-      "myCompanions": { "label": "マイ同行", "desc": "募集した同行 · 参加した同行" },
-      "myBids": { "label": "マイ提案状況", "desc": "ガイドに提案した旅程と入札ガイド" },
-      "myTrips": { "label": "マイ旅程", "desc": "保存した旅程" },
-      "payments": { "label": "決済履歴", "desc": "手数料 · デポジット · ブースト" },
-      "reports": { "label": "通報履歴", "desc": "送った通報と処理状況" },
-      "guideConversion": { "label": "ガイドへの転換", "desc": "予備ガイド · 転換申請" },
-      "recent": { "label": "最近見た", "desc": "このブラウザに保存された履歴" }
+      "myCompanions": {
+        "label": "マイ同行",
+        "desc": "募集した同行 · 参加した同行"
+      },
+      "myBids": {
+        "label": "マイ提案状況",
+        "desc": "ガイドに提案した旅程と入札ガイド"
+      },
+      "myTrips": {
+        "label": "マイ旅程",
+        "desc": "保存した旅程"
+      },
+      "payments": {
+        "label": "決済履歴",
+        "desc": "手数料 · デポジット · ブースト"
+      },
+      "reports": {
+        "label": "通報履歴",
+        "desc": "送った通報と処理状況"
+      },
+      "guideConversion": {
+        "label": "ガイドへの転換",
+        "desc": "予備ガイド · 転換申請"
+      },
+      "recent": {
+        "label": "最近見た",
+        "desc": "このブラウザに保存された履歴"
+      }
     }
   },
   "report": {

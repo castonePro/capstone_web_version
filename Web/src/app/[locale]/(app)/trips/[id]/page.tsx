@@ -145,16 +145,6 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
                       <Tag>{t("hours", { value: course.operatingHours })}</Tag>
                     )}
                   </div>
-                  {course.latitude != null && course.longitude != null && (
-                    <a
-                      href={`https://map.kakao.com/link/map/${encodeURIComponent(course.placeName)},${course.latitude},${course.longitude}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-2 inline-block text-[12px] font-medium text-accent-text hover:underline"
-                    >
-                      {t("openMap")}
-                    </a>
-                  )}
                 </div>
               </div>
             </Card>
