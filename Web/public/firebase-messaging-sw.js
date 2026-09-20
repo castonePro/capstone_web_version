@@ -18,10 +18,14 @@ if (firebaseConfig.projectId) {
   const messaging = firebase.messaging();
 
   messaging.onBackgroundMessage((payload) => {
+    // 서버가 notification 형식으로 보내면 Firebase SDK가 알림을 자동으로 띄운다.
+    // 여기서 또 띄우면 같은 알림이 두 번 뜨므로, data 전용 메시지일 때만 직접 띄운다.
+    if (payload.notification) return;
+
     const notificationTitle = payload.notification?.title || payload.data?.title || "Travel Busan";
     const notificationOptions = {
       body: payload.notification?.body || payload.data?.body || "",
-      icon: "/favicon.ico",
+      icon: "/images/brand/logo.png",
       data: payload.data || {},
     };
 

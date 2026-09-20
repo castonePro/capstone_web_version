@@ -11,7 +11,12 @@ import {
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { notificationApi } from "@/lib/api/endpoints";
 import type { AppNotification } from "@/lib/api/types";
-import { registerFcmToken, setupFcmForegroundListener } from "@/lib/firebase/client";
+import {
+  getPushStatus,
+  registerFcmToken,
+  setupFcmForegroundListener,
+  type PushStatus,
+} from "@/lib/firebase/client";
 
 interface NotificationContextValue {
   unreadCount: number;
@@ -23,6 +28,10 @@ interface NotificationContextValue {
   loadNotifications: () => Promise<AppNotification[]>;
   markAsRead: (notificationId: string) => Promise<void>;
   markAllAsRead: () => Promise<void>;
+  /** 브라우저 푸시 상태: unsupported | unconfigured | default | granted | denied */
+  pushStatus: PushStatus;
+  /** "푸시 알림 켜기" 버튼 — 사용자 클릭으로 권한 요청 후 토큰 등록 */
+  enablePush: () => Promise<boolean>;
 }
 
 const NotificationContext = createContext<NotificationContextValue | null>(null);
@@ -33,6 +42,17 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
+  const [pushStatus, setPushStatus] = useState<PushStatus>("unsupported");
+
+  useEffect(() => {
+    void getPushStatus().then(setPushStatus);
+  }, []);
+
+  const enablePush = useCallback(async () => {
+    const token = await registerFcmToken({ prompt: true });
+    setPushStatus(await getPushStatus());
+    return token != null;
+  }, []);
 
   const refreshUnread = useCallback(async () => {
     if (!isLoggedIn) {
@@ -108,7 +128,8 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     // 1. 초기 unread count 조회
     void refreshUnread();
 
-    // 2. FCM 토큰 발급 및 백엔드 등록
+    // 2. FCM 토큰 갱신 — 이미 알림을 허용한 브라우저에서만 조용히 등록한다.
+    //    (권한 요청 팝업은 알림 화면의 "푸시 알림 켜기" 버튼을 눌렀을 때만 띄움)
     void registerFcmToken();
 
     // 3. 포그라운드 푸시 수신 리스너 등록
@@ -148,6 +169,8 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         loadNotifications,
         markAsRead,
         markAllAsRead,
+        pushStatus,
+        enablePush,
       }}
     >
       {children}

@@ -29,8 +29,20 @@ export default function NotificationsPage() {
     loadNotifications,
     markAsRead,
     markAllAsRead,
+    pushStatus,
+    enablePush,
   } = useNotifications();
   const [busy, setBusy] = useState(false);
+  const [pushBusy, setPushBusy] = useState(false);
+
+  async function handleEnablePush() {
+    setPushBusy(true);
+    try {
+      await enablePush();
+    } finally {
+      setPushBusy(false);
+    }
+  }
 
   useEffect(() => {
     void loadNotifications();
@@ -68,6 +80,25 @@ export default function NotificationsPage() {
           ) : undefined
         }
       />
+
+      {/* 브라우저 푸시 알림 켜기 — 권한 요청은 반드시 사용자 클릭으로 시작해야 브라우저가 막지 않는다 */}
+      {(pushStatus === "default" || pushStatus === "denied") && (
+        <Card className="mb-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-ink">{t("pushTitle")}</p>
+              <p className="mt-0.5 text-[13px] text-ink2">
+                {pushStatus === "denied" ? t("pushDenied") : t("pushBody")}
+              </p>
+            </div>
+            {pushStatus === "default" && (
+              <Button size="sm" loading={pushBusy} onClick={() => void handleEnablePush()}>
+                {t("pushEnable")}
+              </Button>
+            )}
+          </div>
+        </Card>
+      )}
 
       {loading && notifications.length === 0 ? (
         <LoadingBlock />

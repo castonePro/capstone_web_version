@@ -696,7 +696,11 @@
     "allRead": "Bạn đã xem hết.",
     "markAllRead": "Đánh dấu đã đọc tất cả",
     "emptyTitle": "Chưa có thông báo",
-    "emptyBody": "Đơn đăng ký, phê duyệt và thanh toán sẽ hiện ở đây."
+    "emptyBody": "Đơn đăng ký, phê duyệt và thanh toán sẽ hiện ở đây.",
+    "pushTitle": "Thông báo đẩy",
+    "pushBody": "Nhận ngay tin nhắn, đồng hành và đề xuất kể cả khi đã đóng tab.",
+    "pushEnable": "Bật thông báo đẩy",
+    "pushDenied": "Thông báo đang bị chặn. Hãy cho phép trong phần cài đặt trang web (bên trái thanh địa chỉ)."
   },
   "payments": {
     "title": "Thanh toán",

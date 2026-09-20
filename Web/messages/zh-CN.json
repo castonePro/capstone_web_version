@@ -696,7 +696,11 @@
     "allRead": "全部已读。",
     "markAllRead": "全部标为已读",
     "emptyTitle": "没有通知",
-    "emptyBody": "同行申请、通过、支付等消息会显示在这里。"
+    "emptyBody": "同行申请、通过、支付等消息会显示在这里。",
+    "pushTitle": "推送通知",
+    "pushBody": "即使关闭浏览器，也能第一时间收到聊天、同行和提议消息。",
+    "pushEnable": "开启推送通知",
+    "pushDenied": "通知已被阻止。请在地址栏左侧的网站设置中允许通知。"
   },
   "payments": {
     "title": "支付记录",

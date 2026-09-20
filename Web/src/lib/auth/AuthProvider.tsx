@@ -20,6 +20,7 @@ import {
 import { AuthStorage, setUnauthorizedHandler } from "@/lib/api/client";
 import { authApi, userApi } from "@/lib/api/endpoints";
 import type { MeResponse } from "@/lib/api/types";
+import { unregisterFcmToken } from "@/lib/firebase/client";
 
 interface AuthContextValue {
   ready: boolean;
@@ -66,6 +67,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const logout = useCallback(() => {
+    // 이 브라우저의 웹 푸시 토큰을 서버에서 지운다 (로그인 토큰을 지우기 전에 시작해야 함)
+    void unregisterFcmToken();
     AuthStorage.clear();
     try {
       window.sessionStorage.removeItem("session_expired");

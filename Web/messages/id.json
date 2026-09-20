@@ -696,7 +696,11 @@
     "allRead": "Semua sudah dibaca.",
     "markAllRead": "Tandai semua dibaca",
     "emptyTitle": "Belum ada notifikasi",
-    "emptyBody": "Pendaftaran trip, persetujuan, dan pembayaran akan muncul di sini."
+    "emptyBody": "Pendaftaran trip, persetujuan, dan pembayaran akan muncul di sini.",
+    "pushTitle": "Notifikasi push",
+    "pushBody": "Dapatkan kabar chat, teman perjalanan, dan penawaran langsung, bahkan saat tab ditutup.",
+    "pushEnable": "Aktifkan notifikasi push",
+    "pushDenied": "Notifikasi diblokir. Izinkan di pengaturan situs browser (di kiri bilah alamat)."
   },
   "payments": {
     "title": "Pembayaran",

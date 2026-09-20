@@ -696,7 +696,11 @@
     "allRead": "You're all caught up.",
     "markAllRead": "Mark all read",
     "emptyTitle": "No notifications",
-    "emptyBody": "Trip applications, approvals, and payments show up here."
+    "emptyBody": "Trip applications, approvals, and payments show up here.",
+    "pushTitle": "Push notifications",
+    "pushBody": "Get chat, companion and offer updates right away, even when this tab is closed.",
+    "pushEnable": "Turn on push",
+    "pushDenied": "Notifications are blocked. Allow them in your browser's site settings (left of the address bar)."
   },
   "payments": {
     "title": "Payments",

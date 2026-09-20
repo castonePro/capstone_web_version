@@ -421,8 +421,8 @@ export const reviewApi = {
 
 export const fcmApi = {
   /** POST /api/v1/fcm/token — FCM 디바이스 토큰 등록 */
-  registerToken: (token: string) =>
-    api.post<void>("/api/v1/fcm/token", { token }),
+  registerToken: (token: string, platform?: "web") =>
+    api.post<void>("/api/v1/fcm/token", platform ? { token, platform } : { token }),
 };
 
 /* ────────────────────────── notifications ────────────────────────── */
