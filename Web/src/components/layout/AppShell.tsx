@@ -24,22 +24,39 @@ import {
 import { IconBell, IconLogout } from "./icons";
 import { LocaleSwitcher } from "./LocaleSwitcher";
 
-function isActive(pathname: string, href: string) {
+function isActive(pathname: string, href: string, allHrefs?: string[]) {
   if (href === "/home") return pathname === "/home";
-  return pathname === href || pathname.startsWith(`${href}/`);
+  if (pathname === href) return true;
+  if (!pathname.startsWith(`${href}/`)) return false;
+
+  // pathname이 href의 하위 경로인 경우, 메뉴 목록에 더 일치하는 세부 경로가 있다면 현재 href는 비활성화
+  // 예: pathname이 "/companions/my"일 때 href="/companions"는 false ("내 동행"만 활성화)
+  if (allHrefs) {
+    const hasMoreSpecificMatch = allHrefs.some(
+      (otherHref) =>
+        otherHref !== href &&
+        otherHref.startsWith(`${href}/`) &&
+        (pathname === otherHref || pathname.startsWith(`${otherHref}/`)),
+    );
+    if (hasMoreSpecificMatch) return false;
+  }
+
+  return true;
 }
 
 function NavLink({
   item,
   pathname,
   unreadCount,
+  allHrefs,
 }: {
   item: NavItem;
   pathname: string;
   unreadCount?: number;
+  allHrefs?: string[];
 }) {
   const t = useTranslations("nav");
-  const active = isActive(pathname, item.href);
+  const active = isActive(pathname, item.href, allHrefs);
   const Icon = item.icon;
   const showBadge = item.href === "/notifications" && (unreadCount ?? 0) > 0;
   return (
@@ -92,6 +109,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const primary = isGuideMode ? GUIDE_NAV : USER_NAV;
   const secondary = isGuideMode ? GUIDE_NAV_SECONDARY : USER_NAV_SECONDARY;
   const tabs = primary.filter((i) => i.primary);
+  const allHrefs = [...primary, ...secondary].map((i) => i.href);
 
   return (
     <div className="ambient-bg min-h-dvh">
@@ -104,7 +122,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         <nav className="flex flex-col gap-1">
           {primary.map((item) => (
-            <NavLink key={item.href} item={item} pathname={pathname} />
+            <NavLink key={item.href} item={item} pathname={pathname} allHrefs={allHrefs} />
           ))}
         </nav>
 
@@ -117,6 +135,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               item={item}
               pathname={pathname}
               unreadCount={unreadCount}
+              allHrefs={allHrefs}
             />
           ))}
         </nav>
@@ -229,7 +248,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <nav className="fixed inset-x-0 bottom-0 z-30 px-4 pb-4 lg:hidden">
         <div className="flex h-[60px] items-stretch rounded-[12px] bg-nav-bg shadow-lg backdrop-blur">
           {tabs.map((item) => {
-            const active = isActive(pathname, item.href);
+            const active = isActive(pathname, item.href, allHrefs);
             const Icon = item.icon;
             return (
               <Link
