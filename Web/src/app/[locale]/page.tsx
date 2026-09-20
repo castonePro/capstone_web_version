@@ -17,9 +17,7 @@ export default function RootPage() {
 
   return (
     <div className="ambient-bg flex min-h-dvh flex-col items-center justify-center gap-4">
-      <span className="grid h-14 w-14 place-items-center rounded-[16px] bg-accent text-xl font-bold text-white">
-        B
-      </span>
+      <img src="/images/brand/logo.png" alt="Travel Busan" className="h-14 w-14 rounded-[16px] object-cover" />
       <p className="text-sm font-semibold tracking-tight">Travel Busan</p>
       <Spinner size={22} />
     </div>

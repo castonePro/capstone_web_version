@@ -103,13 +103,19 @@ export interface PlannerResponse {
 }
 export interface GeneratedCourse {
   day_number: number;
-  start_time: string; // "HH:mm" or "HH:mm:ss"
+  start_time: string; // 서버가 "HH:mm"으로 정규화해서 내려준다
   duration_minutes: number;
+  /** 서버가 place_id로 DB에서 채운 값 (LLM 출력 아님) */
   place: string;
-  latitude: number;
-  longitude: number;
+  /**
+   * travel_places.place_id. 저장 시 이 값을 그대로 되돌려주면
+   * 서버가 이름 재조회(동명 장소·환각에 취약) 없이 바로 연결한다.
+   */
+  place_id: number | null;
+  latitude: number | null;
+  longitude: number | null;
   category_type: string[];
-  operating_hours: string;
+  operating_hours: string | null;
   description: string;
 }
 export interface GeneratedPlan {
@@ -118,6 +124,40 @@ export interface GeneratedPlan {
   start_date: string;
   end_date: string;
   generated_courses: GeneratedCourse[];
+}
+
+/** 한 턴이 어떻게 분류됐는지. 서버 PlannerIntent와 1:1. */
+export type PlannerIntent = "NEW_PLAN" | "MODIFY" | "ASK" | "OUT_OF_SCOPE";
+
+export interface SessionMessage {
+  seq: number;
+  role: "user" | "assistant";
+  content: string;
+  intent: PlannerIntent | null;
+  createdAt: string | null;
+}
+
+/** GET /planner/sessions/{id} — 새로고침 후 대화 복구용 */
+export interface SessionHistory {
+  sessionId: string;
+  locale: string | null;
+  messages: SessionMessage[];
+  /** 서버가 보관 중인 최신 일정. 과거 버전은 남기지 않는다 */
+  plan: GeneratedPlan | null;
+  turnCount: number;
+  remainingTurns: number;
+}
+
+/** POST /planner/sessions/{id}/messages */
+export interface SessionTurn {
+  sessionId: string;
+  intent: PlannerIntent;
+  reply: string;
+  plan: GeneratedPlan | null;
+  /** 이번 턴에 추가·수정된 코스의 place_id. 해당 카드에 "수정됨" 표시를 붙인다 */
+  changedPlaceIds: number[];
+  turnCount: number;
+  remainingTurns: number;
 }
 
 // ─── companions ───

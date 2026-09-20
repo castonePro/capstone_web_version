@@ -98,9 +98,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* ─── 데스크톱 사이드바 ─── */}
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col overflow-y-auto border-r border-line bg-white/80 px-4 py-5 backdrop-blur lg:flex">
         <Link href="/home" className="mb-6 flex items-center gap-2 px-2">
-          <span className="grid h-8 w-8 place-items-center rounded-[10px] bg-accent text-sm font-bold text-white">
-            B
-          </span>
+          <img src="/images/brand/logo.png" alt="Travel Busan" className="h-8 w-8 rounded-[10px] object-cover" />
           <span className="text-[15px] font-semibold tracking-tight">Travel Busan</span>
         </Link>
 
@@ -171,9 +169,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* ─── 모바일 상단바 ─── */}
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-2 border-b border-line bg-white/85 px-4 backdrop-blur lg:hidden">
         <Link href="/home" className="flex shrink-0 items-center gap-2">
-          <span className="grid h-7 w-7 place-items-center rounded-[9px] bg-accent text-xs font-bold text-white">
-            B
-          </span>
+          <img src="/images/brand/logo.png" alt="Travel Busan" className="h-7 w-7 rounded-[9px] object-cover" />
           <span className="text-sm font-semibold">Travel Busan</span>
         </Link>
         <div className="flex items-center gap-1">

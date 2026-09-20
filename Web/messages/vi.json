@@ -250,7 +250,6 @@
     "noName": "Chưa có tên",
     "noAddress": "Không có thông tin địa chỉ",
     "backToList": "Danh sách địa điểm",
-    "openMap": "Xem trên bản đồ",
     "planWithThis": "Lập lịch trình từ địa điểm này",
     "overview": "Giới thiệu"
   },
@@ -273,8 +272,7 @@
     "dayCount": "{count} ngày",
     "courseCount": "{count} điểm dừng",
     "placeInfo": "Thông tin địa điểm",
-    "hours": "Mở cửa {value}",
-    "openMap": "Xem trên bản đồ"
+    "hours": "Mở cửa {value}"
   },
   "maps": {
     "noApiKey": "Cần có khóa API Bản đồ để hiển thị bản đồ này",
@@ -283,7 +281,21 @@
     "routeError": "Không tải được lộ trình",
     "calculating": "Đang tính lộ trình…",
     "estimated": "ước tính",
-    "mapError": "Đã xảy ra sự cố khi hiển thị bản đồ"
+    "mapError": "Đã xảy ra sự cố khi hiển thị bản đồ",
+    "myLocation": "Vị trí của tôi",
+    "follow": "Theo dõi",
+    "locating": "Đang tìm vị trí của bạn…",
+    "nextPlace": "Điểm tiếp theo",
+    "remaining": "Còn {distance} · khoảng {time} ({mode})",
+    "arrived": "Bạn đã đến nơi!",
+    "prevPlace": "Điểm trước",
+    "nextPlaceBtn": "Điểm tiếp theo",
+    "geo": {
+      "denied": "Quyền truy cập vị trí đã bị từ chối. Vui lòng cho phép truy cập vị trí trong cài đặt trình duyệt.",
+      "unavailable": "Không xác định được vị trí của bạn. Vui lòng thử lại sau.",
+      "insecure": "Chỉ có thể dùng vị trí qua kết nối bảo mật (HTTPS).",
+      "unsupported": "Trình duyệt này không hỗ trợ định vị."
+    }
   },
   "ai": {
     "title": "AI lập lịch trình",
@@ -295,6 +307,10 @@
     "tryAsking": "Bạn có thể hỏi thế này",
     "inputPlaceholder": "Bạn muốn chuyến đi thế nào? (ví dụ: 3 ngày, ngắm biển và ăn ngon)",
     "saveToTrips": "Lưu vào lịch trình",
+    "newChat": "Trò chuyện mới",
+    "updated": "Đã cập nhật",
+    "working": "Đang áp dụng thay đổi…",
+    "restoring": "Đang khôi phục cuộc trò chuyện…",
     "interests": {
       "leisure": "Giải trí",
       "food": "Ẩm thực",
@@ -502,7 +518,9 @@
     "rating": "Điểm",
     "reviewContent": "Nội dung",
     "reviewPlaceholder": "Trải nghiệm cùng hướng dẫn viên này thế nào?",
-    "reviewPosted": "Đã đăng đánh giá."
+    "reviewPosted": "Đã đăng đánh giá.",
+    "priceNote": "Giá tham khảo · số tiền cuối cùng thỏa thuận với hướng dẫn viên",
+    "inquireNotice": "Ứng dụng không xử lý đặt chỗ hay thanh toán. Vui lòng trao đổi lịch trình và giá trực tiếp với hướng dẫn viên qua trò chuyện."
   },
   "guideProducts": {
     "title": "Quản lý tour",
@@ -754,13 +772,34 @@
     "saveSuccess": "Đã lưu",
     "nicknamePlaceholder": "Nhập biệt danh",
     "menu": {
-      "myCompanions": { "label": "Chuyến của tôi", "desc": "Chuyến tôi tổ chức · chuyến tôi tham gia" },
-      "myBids": { "label": "Đề xuất của tôi", "desc": "Lịch trình gửi cho HDV và ai đã đấu giá" },
-      "myTrips": { "label": "Lịch trình của tôi", "desc": "Lịch trình đã lưu" },
-      "payments": { "label": "Thanh toán", "desc": "Phí · tiền cọc · đẩy bài" },
-      "reports": { "label": "Báo cáo của tôi", "desc": "Báo cáo đã gửi và trạng thái xử lý" },
-      "guideConversion": { "label": "Trở thành HDV", "desc": "HDV dự bị · đơn chuyển đổi" },
-      "recent": { "label": "Đã xem gần đây", "desc": "Lưu trong trình duyệt này" }
+      "myCompanions": {
+        "label": "Chuyến của tôi",
+        "desc": "Chuyến tôi tổ chức · chuyến tôi tham gia"
+      },
+      "myBids": {
+        "label": "Đề xuất của tôi",
+        "desc": "Lịch trình gửi cho HDV và ai đã đấu giá"
+      },
+      "myTrips": {
+        "label": "Lịch trình của tôi",
+        "desc": "Lịch trình đã lưu"
+      },
+      "payments": {
+        "label": "Thanh toán",
+        "desc": "Phí · tiền cọc · đẩy bài"
+      },
+      "reports": {
+        "label": "Báo cáo của tôi",
+        "desc": "Báo cáo đã gửi và trạng thái xử lý"
+      },
+      "guideConversion": {
+        "label": "Trở thành HDV",
+        "desc": "HDV dự bị · đơn chuyển đổi"
+      },
+      "recent": {
+        "label": "Đã xem gần đây",
+        "desc": "Lưu trong trình duyệt này"
+      }
     }
   },
   "report": {

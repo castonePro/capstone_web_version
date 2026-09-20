@@ -62,9 +62,7 @@ function LoginForm() {
   return (
     <div className="w-full max-w-sm">
       <div className="mb-8 flex items-center justify-between">
-        <span className="grid h-12 w-12 place-items-center rounded-[14px] bg-accent text-lg font-bold text-white lg:hidden">
-          B
-        </span>
+        <img src="/images/brand/logo.png" alt="Travel Busan" className="h-12 w-12 rounded-[14px] object-cover" />
         <span className="ml-auto">
           <LocaleSwitcher compact />
         </span>
@@ -141,9 +139,7 @@ export default function LoginPage() {
       {/* 데스크톱 좌측 소개 패널 — 모바일에서는 숨긴다 */}
       <section className="hidden flex-col justify-between p-12 lg:flex">
         <div className="flex items-center gap-2">
-          <span className="grid h-9 w-9 place-items-center rounded-[12px] bg-accent font-bold text-white">
-            B
-          </span>
+          <img src="/images/brand/logo.png" alt="Travel Busan" className="h-9 w-9 rounded-[12px] object-cover" />
           <span className="text-base font-semibold tracking-tight">Travel Busan</span>
         </div>
         <div className="max-w-md">
